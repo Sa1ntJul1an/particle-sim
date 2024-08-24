@@ -81,10 +81,6 @@ void Particle::updateParticle(float current_time) {
     _position[0] += delta_position_x;
     _position[1] += delta_position_y;
 
-    std::cout << "acc: " << std::to_string(_acceleration[0]) << " " << std::to_string(_acceleration[1]) << std::endl;
-    std::cout << "vel: " << std::to_string(_velocity[0]) << " " << std::to_string(_velocity[1]) << std::endl;
-    std::cout << "pos x: " << std::to_string(_position.at(0)) << " pos y: " << std::to_string(_position.at(1)) << std::endl << std::endl;
-
     _previous_time = current_time;
 
 }

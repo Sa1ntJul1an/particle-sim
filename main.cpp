@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <cmath>
+#include <sstream>
 
 #include "particle.h"
 #include "particle_sim.h"
@@ -17,7 +18,8 @@ const int HEIGHT = 800;
 const int MENU_WIDTH = 400;
 const int MENU_HEIGHT = 800;
 
-const Color velVectorColor = Color(0, 255, 0);
+const Color posVectorColor = Color(255, 255, 0);
+const Color velVectorColor = Color(255, 0, 255);
 const Color accVectorColor = Color(0, 255, 255);
 
 
@@ -46,8 +48,6 @@ struct testParticle{
 
 int main(){
 
-    bool displayInfo = true; 
-
     float G = 0.0000000000667;
     float coefficientOfFriction = 0;
 
@@ -56,10 +56,17 @@ int main(){
     bool drawVelocityVectors = true;
     bool drawAccelerationVectors = true;
 
+    bool displayValues = true;
+
     vector<float> mousePosition;
     bool spawningParticle = false;
 
     testParticle particle_struct;
+
+    Font font;
+    FileInputStream fontIn;
+    fontIn.open("slkscr.ttf");
+    font.loadFromStream(fontIn);
 
     // RENDER WINDOWS 
     // =======================================================================
@@ -68,6 +75,9 @@ int main(){
     RenderWindow menuWindow(VideoMode(MENU_WIDTH, MENU_HEIGHT), "Menu");
     menuWindow.setFramerateLimit(60);
     // =======================================================================
+
+    bool sim_running = true;
+    bool space_pressed = false;
 
     Clock renderTime;
 
@@ -88,12 +98,6 @@ int main(){
             
             particles.push_back(particle);
             particleSim.addParticle(particle);
-
-            CircleShape shape(particle->getRadius());
-            shape.setFillColor(Color(particle->getColor()[0], particle->getColor()[1], particle->getColor()[2]));
-            shape.setPosition(Vector2f(particle->getPosition()[0], particle->getPosition()[1]));
-
-            particle_shapes.push_back(shape);
 
             spawningParticle = true;
 
@@ -128,17 +132,83 @@ int main(){
         // UPDATE PARTICLES AND DISPLAY
         // ==========================================================
 
-        particleSim.updateParticles(time_seconds);
+        // KEYBOARD EVENTS =========================================
+        if (Keyboard::isKeyPressed(Keyboard::Space)){   // space to pause/unpause
+
+            if (!space_pressed) {
+                sim_running = !sim_running;
+                space_pressed = true;
+            }
+        } else {
+            space_pressed = false;
+        }
+
+        if (sim_running) {
+            particleSim.updateParticles(time_seconds);
+        }
 
         particleWindow.clear();
 
+
+        CircleShape particle_shape;
         for (int i = 0; i < particles.size(); i ++){
             Particle* particle = particles[i];
 
-            Vector2f particle_position = Vector2f(particle->getPosition()[0] - particle->getRadius(), particle->getPosition()[1] - particle->getRadius());
+            Vector2f particle_position = Vector2f(particle->getPosition()[0] + particle->getRadius(), particle->getPosition()[1] + particle->getRadius());
 
-            particle_shapes[i].setPosition(particle_position);
+            particle_shape.setRadius(particle->getRadius());
+            particle_shape.setFillColor(Color(particle->getColor()[0], particle->getColor()[1], particle->getColor()[2]));
+            particle_shape.setPosition(Vector2f(particle->getPosition()[0], particle->getPosition()[1]));
 
+            particleWindow.draw(particle_shape);
+
+
+            if (displayValues){
+                int char_size = 15;
+                int x_offset = 70;
+
+                Text position_text;
+                position_text.setFillColor(posVectorColor);
+                position_text.setPosition(Vector2f(particle_position.x - x_offset, particle_position.y + particle->getRadius()));
+                position_text.setCharacterSize(char_size);
+                position_text.setFont(font);
+
+                stringstream position_stream;
+                position_stream.precision(2);
+                position_stream << fixed << "pos: (" <<  particle->getPosition()[0] << ", " <<  particle->getPosition()[1] << ")";
+
+                position_text.setString(position_stream.str());
+
+                particleWindow.draw(position_text);
+
+                Text velocity_text;
+                velocity_text.setFillColor(velVectorColor);
+                velocity_text.setPosition(Vector2f(particle_position.x - x_offset, particle_position.y + particle->getRadius() + char_size));
+                velocity_text.setCharacterSize(char_size);
+                velocity_text.setFont(font);
+
+                stringstream velocity_stream;
+                velocity_stream.precision(2);
+                velocity_stream << fixed << "vel: (" <<  particle->getVelocity()[0] << ", " <<  particle->getVelocity()[1] << ")";
+
+                velocity_text.setString(velocity_stream.str());
+
+                particleWindow.draw(velocity_text);
+
+                Text acceleration_text;
+                acceleration_text.setFillColor(accVectorColor);
+                acceleration_text.setPosition(Vector2f(particle_position.x - x_offset, particle_position.y + particle->getRadius() + char_size * 2));
+                acceleration_text.setCharacterSize(15);
+                acceleration_text.setFont(font);
+
+                stringstream acceleration_stream;
+                acceleration_stream.precision(2);
+                acceleration_stream << fixed << "acc: (" << particle->getAcceleration()[0] << ", " << particle->getAcceleration()[1] << ")";
+
+                acceleration_text.setString(acceleration_stream.str());
+
+                particleWindow.draw(acceleration_text);
+            }
 
             if (drawVelocityVectors){
                 
@@ -154,6 +224,7 @@ int main(){
                 };
 
                 particleWindow.draw(line, 2, sf::Lines);
+
             }
             
             if (drawAccelerationVectors){
@@ -171,13 +242,10 @@ int main(){
 
                 particleWindow.draw(line, 2, sf::Lines);
             }
-
-            particleWindow.draw(particle_shapes[i]);
         }
 
         particleWindow.display();
         // ==========================================================
-
 
         menuWindow.clear();
         menuWindow.display();

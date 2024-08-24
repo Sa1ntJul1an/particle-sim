@@ -11,7 +11,7 @@ class Particle{
 
         std::vector<float> getPosition();
 
-        float getSize();
+        float getRadius();
 
         float getMass();
 
@@ -23,16 +23,18 @@ class Particle{
 
         void setAcceleration(std::vector<float>);
 
-        void updateParticlePosition(float);
+        void updateParticle(float);
 
     private:
-        float _size;
+        float _radius;
         float _mass;
         float _previous_time;
         std::vector<int> _rgb;
         std::vector<float> _position;
         std::vector<float> _velocity;
         std::vector<float> _acceleration;
+
+        float _tolerance;
 };
 
 #endif /* !PARTICLE_HEADER */

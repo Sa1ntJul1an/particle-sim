@@ -15,7 +15,7 @@ void ParticleSim::addParticle(Particle* particle){
 
 void ParticleSim::updateParticles(float current_time) {
     double pi = M_PI;
-    const float TOLERANCE = 0.001;
+    const float TOLERANCE = 0.01;
 
     if (_particles.size() > 1){
 
@@ -33,17 +33,13 @@ void ParticleSim::updateParticles(float current_time) {
                 float delta_x = particle1->getPosition()[0] - particle2->getPosition()[0];
                 float delta_y = particle1->getPosition()[1] - particle2->getPosition()[1];
 
-                float euclidean_distance;
+                float euclidean_distance = sqrt(pow(delta_x, 2) + pow(delta_y, 2));
                 float F = 0;
                 float theta = 0;
-                if (!(abs(delta_y) < TOLERANCE && abs(delta_x) < TOLERANCE)){
-                    euclidean_distance = sqrt(pow(delta_x, 2) + pow(delta_y, 2));
+                if (euclidean_distance > TOLERANCE){
                     theta = (180 / pi) * atan2(delta_y, delta_x);
                     F = (_G * particle1->getMass() * particle2->getMass()) / pow(euclidean_distance, 2);
                 }
-                
-                std::cout << "delta_x: " << std::to_string(delta_x) << " delta_y: " << std::to_string(delta_y) << std::endl;
-                std::cout << "theta: " << std::to_string(theta) << std::endl;
 
                 Fx_total += F * (180 / pi) * cos(theta);
                 Fy_total += F * (180 / pi) * sin(theta);
@@ -59,7 +55,7 @@ void ParticleSim::updateParticles(float current_time) {
     }
 
     for (int i = 0; i < _particles.size(); i++){
-        _particles[i]->updateParticlePosition(current_time);
+        _particles[i]->updateParticle(current_time);
     }
 
 }

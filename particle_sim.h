@@ -6,7 +6,11 @@
 
 class ParticleSim {
     public: 
-        ParticleSim(float, float, std::vector<Particle>&);
+        ParticleSim(float, float, std::vector<Particle*>);
+
+        ~ParticleSim();
+
+        void addParticle(Particle*);
 
         void updateParticles(float);
 
@@ -14,7 +18,7 @@ class ParticleSim {
         float _G;
         float _coefficientOfFriction;
 
-        std::vector<Particle>& _particles;
+        std::vector<Particle*> _particles;
 
 };
 

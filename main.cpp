@@ -47,11 +47,11 @@ int main(){
     float G = 0.0000000000667;
     float coefficientOfFriction = 0;
 
-    vector<Particle> particles;
+    vector<Particle*> particles;
 
 
     vector<float> mousePosition;
-    bool particleSpawned = false;
+    bool spawningParticle = false;
 
     testParticle particle_struct;
 
@@ -76,22 +76,24 @@ int main(){
 
         mousePosition = {float(Mouse::getPosition(particleWindow).x), float(Mouse::getPosition(particleWindow).y)};
 
-        if (Mouse::isButtonPressed(Mouse::Left) && !particleSpawned){
+        if (Mouse::isButtonPressed(Mouse::Left) && !spawningParticle){
             
-            Particle particle(particle_struct.size, particle_struct.mass, time_seconds, particle_struct.rgb, mousePosition, particle_struct.velocity, particle_struct.acceleration);
+            Particle* particle = new Particle(particle_struct.size, particle_struct.mass, time_seconds, particle_struct.rgb, mousePosition, particle_struct.velocity, particle_struct.acceleration);
+            
             particles.push_back(particle);
+            particleSim.addParticle(particle);
 
-            CircleShape shape(particle.getSize());
-            shape.setFillColor(Color(particle.getColor()[0], particle.getColor()[1], particle.getColor()[2]));
-            shape.setPosition(Vector2f(particle.getPosition()[0], particle.getPosition()[1]));
+            CircleShape shape(particle->getSize());
+            shape.setFillColor(Color(particle->getColor()[0], particle->getColor()[1], particle->getColor()[2]));
+            shape.setPosition(Vector2f(particle->getPosition()[0], particle->getPosition()[1]));
 
             particle_shapes.push_back(shape);
 
-            particleSpawned = true;
+            spawningParticle = true;
 
         } else if (!Mouse::isButtonPressed(Mouse::Left))
         {
-            particleSpawned = false;
+            spawningParticle = false;
         }
 
 
@@ -122,11 +124,11 @@ int main(){
 
         particleSim.updateParticles(time_seconds);
         for (int i = 0; i < particles.size(); i ++){
-            Particle particle = particles[i];
+            Particle* particle = particles[i];
 
             //cout << "velocity: " << to_string(particle.getVelocity()[0]) << " " << to_string(particle.getVelocity()[1]) << endl;
 
-            particle_shapes[i].setPosition(Vector2f(particle.getPosition()[0], particle.getPosition()[1]));
+            particle_shapes[i].setPosition(Vector2f(particle->getPosition()[0], particle->getPosition()[1]));
         }
 
         // ==========================================================

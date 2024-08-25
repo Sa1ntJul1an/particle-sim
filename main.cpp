@@ -13,7 +13,7 @@ using namespace sf;
 using namespace std;
 
 const int WIDTH = 1000;
-const int HEIGHT = 800;
+const int HEIGHT = 1000;
 
 const int MENU_WIDTH = 400;
 const int MENU_HEIGHT = 800;
@@ -44,6 +44,15 @@ struct testParticle{
     use displayInfo bool to determine if trajectory vector shown + current vel and acc
 
 */
+
+// convert coordinate from between window and sim coordinates (invert y axis)
+vector<float> convertCoords(vector<float> coords){
+    return {coords[0], HEIGHT - coords[1]};
+}
+
+Vector2f convertCoords(Vector2f coords){
+    return {coords.x, HEIGHT - coords.y};
+}
 
 
 int main(){
@@ -90,11 +99,12 @@ int main(){
         Time time = renderTime.getElapsedTime();
         float time_seconds = time.asSeconds();
 
+        // subtract height from y coord to invert y axis (bottom left of render window is now (0,0))
         mousePosition = {float(Mouse::getPosition(particleWindow).x), float(Mouse::getPosition(particleWindow).y)};
 
-        if (Mouse::isButtonPressed(Mouse::Left) && !spawningParticle){
+        if (Mouse::isButtonPressed(Mouse::Left) && !spawningParticle && mousePosition[0] < WIDTH && mousePosition[0] >= 0 && mousePosition[1] < HEIGHT && mousePosition[1] >= 0){
             
-            Particle* particle = new Particle(particle_struct.radius, particle_struct.mass, time_seconds, particle_struct.rgb, mousePosition, particle_struct.velocity, particle_struct.acceleration);
+            Particle* particle = new Particle(particle_struct.radius, particle_struct.mass, time_seconds, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
             
             particles.push_back(particle);
             particleSim.addParticle(particle);
@@ -154,14 +164,16 @@ int main(){
         for (int i = 0; i < particles.size(); i ++){
             Particle* particle = particles[i];
 
-            Vector2f particle_position = Vector2f(particle->getPosition()[0] + particle->getRadius(), particle->getPosition()[1] + particle->getRadius());
+            Vector2f particle_pos_sim = Vector2f(particle->getPosition()[0], particle->getPosition()[1]);
+            Vector2f particle_pos_window = convertCoords(particle_pos_sim);
+
+            particle_pos_window = Vector2f(particle_pos_window.x + particle->getRadius(), particle_pos_window.y + particle->getRadius());
 
             particle_shape.setRadius(particle->getRadius());
             particle_shape.setFillColor(Color(particle->getColor()[0], particle->getColor()[1], particle->getColor()[2]));
-            particle_shape.setPosition(Vector2f(particle->getPosition()[0], particle->getPosition()[1]));
+            particle_shape.setPosition(particle_pos_window);
 
             particleWindow.draw(particle_shape);
-
 
             if (displayValues){
                 int char_size = 15;
@@ -169,7 +181,7 @@ int main(){
 
                 Text position_text;
                 position_text.setFillColor(posVectorColor);
-                position_text.setPosition(Vector2f(particle_position.x - x_offset, particle_position.y + particle->getRadius()));
+                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius()));
                 position_text.setCharacterSize(char_size);
                 position_text.setFont(font);
 
@@ -183,7 +195,7 @@ int main(){
 
                 Text velocity_text;
                 velocity_text.setFillColor(velVectorColor);
-                velocity_text.setPosition(Vector2f(particle_position.x - x_offset, particle_position.y + particle->getRadius() + char_size));
+                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius() + char_size));
                 velocity_text.setCharacterSize(char_size);
                 velocity_text.setFont(font);
 
@@ -197,7 +209,7 @@ int main(){
 
                 Text acceleration_text;
                 acceleration_text.setFillColor(accVectorColor);
-                acceleration_text.setPosition(Vector2f(particle_position.x - x_offset, particle_position.y + particle->getRadius() + char_size * 2));
+                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius() + char_size * 2));
                 acceleration_text.setCharacterSize(15);
                 acceleration_text.setFont(font);
 
@@ -214,12 +226,14 @@ int main(){
                 
                 Vector2f velocity_vector;
 
-                velocity_vector.x = particle_position.x + particle->getVelocity()[0] * 60;
-                velocity_vector.y = particle_position.y + particle->getVelocity()[1] * 60;
+                velocity_vector.x = particle_pos_sim.x + particle->getVelocity()[0] * 60;
+                velocity_vector.y = particle_pos_sim.y + particle->getVelocity()[1] * 60;
 
+                velocity_vector = convertCoords(velocity_vector);                
+                
                 Vertex line[] =
                 {
-                    Vertex(particle_position, velVectorColor),
+                    Vertex(particle_pos_window, velVectorColor),
                     Vertex(velocity_vector, velVectorColor)
                 };
 
@@ -231,12 +245,14 @@ int main(){
                 
                 Vector2f acceleration_vector;
 
-                acceleration_vector.x = particle_position.x + particle->getAcceleration()[0] * 60;
-                acceleration_vector.y = particle_position.y + particle->getAcceleration()[1] * 60;
+                acceleration_vector.x = particle_pos_sim.x + particle->getAcceleration()[0] * 60;
+                acceleration_vector.y = particle_pos_sim.y + particle->getAcceleration()[1] * 60;
+
+                acceleration_vector = convertCoords(acceleration_vector);
 
                 Vertex line[] =
                 {
-                    Vertex(particle_position, accVectorColor),
+                    Vertex(particle_pos_window, accVectorColor),
                     Vertex(acceleration_vector, accVectorColor)
                 };
 

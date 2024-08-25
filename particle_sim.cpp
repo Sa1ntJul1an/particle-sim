@@ -20,9 +20,13 @@ void ParticleSim::updateParticles(float current_time) {
     if (_particles.size() > 1){
 
         for (Particle* particle1 : _particles) {
+
+            //particle1->setAcceleration({0.0, 0.0});
             
             float Fx_total = 0.0;
             float Fy_total = 0.0;
+
+            std::cout << "============================================" << std::endl;
 
             for (Particle* particle2 : _particles) {
 
@@ -30,10 +34,11 @@ void ParticleSim::updateParticles(float current_time) {
                     continue;
                 }
 
-                float delta_x = particle1->getPosition()[0] - particle2->getPosition()[0];
-                float delta_y = particle1->getPosition()[1] - particle2->getPosition()[1];
+                float delta_x = particle2->getPosition()[0] - particle1->getPosition()[0];
+                float delta_y = particle2->getPosition()[1] - particle1->getPosition()[1];
 
                 float euclidean_distance = sqrt(pow(delta_x, 2) + pow(delta_y, 2));
+
                 float F = 0;
                 float theta = 0;
                 if (euclidean_distance > TOLERANCE){
@@ -43,6 +48,25 @@ void ParticleSim::updateParticles(float current_time) {
 
                 Fx_total += F * (180 / pi) * cos(theta);
                 Fy_total += F * (180 / pi) * sin(theta);
+
+                std::cout << "particle 1: " << particle1 << std::endl;
+                std::cout << "position: " << "(" << std::to_string(particle1->getPosition()[0]) << ", " << std::to_string(particle1->getPosition()[1]) << ")" << std::endl;
+                std::cout << "velocity: " << "(" << std::to_string(particle1->getVelocity()[0]) << ", " << std::to_string(particle1->getVelocity()[1]) << ")" << std::endl;
+                std::cout << "acceleration: " << "(" << std::to_string(particle1->getAcceleration()[0]) << ", " << std::to_string(particle1->getAcceleration()[1]) << ")" << std::endl << std::endl;
+
+                std::cout << "particle 2: " << particle2 << std::endl;
+                std::cout << "position: " << "(" << std::to_string(particle2->getPosition()[0]) << ", " << std::to_string(particle2->getPosition()[1]) << ")" << std::endl;
+
+                std::cout << "deltas: " << std::to_string(delta_x) << " " << std::to_string(delta_y) << std::endl;
+                std::cout << "euclidean distance: " << std::to_string(euclidean_distance) << std::endl;
+
+                std::cout << "Theta: " << std::to_string(theta) << std::endl;
+                std::cout << "F: " << std::to_string(F) << std::endl;
+
+                std::cout << "Fx_total: " << std::to_string(Fx_total) << std::endl;
+                std::cout << "Fy_total: " << std::to_string(Fy_total) << std::endl;
+
+                std::cout << "============================================" << std::endl << std::endl;
             }
 
             float a_x = Fx_total / particle1->getMass();
@@ -52,6 +76,8 @@ void ParticleSim::updateParticles(float current_time) {
 
             particle1->setAcceleration(acceleration);
         }
+    } else if (_particles.size() == 1){
+        _particles[0]->setAcceleration({0.0, 0.0});
     }
 
     for (int i = 0; i < _particles.size(); i++){

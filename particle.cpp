@@ -78,5 +78,4 @@ void Particle::updateParticle(float current_time) {
     _position[1] += delta_position_y;
 
     _previous_time = current_time;
-
 }

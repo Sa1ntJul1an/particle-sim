@@ -88,6 +88,13 @@ int main(){
     bool sim_running = true;
     bool space_pressed = false;
 
+    Text pausedIndicator; 
+    pausedIndicator.setFont(font);
+    pausedIndicator.setFillColor(Color::Red);
+    pausedIndicator.setPosition(Vector2f(5, 5));
+    pausedIndicator.setCharacterSize(30);
+    pausedIndicator.setString("Paused.");
+
     Clock renderTime;
 
     vector<CircleShape> particle_shapes;
@@ -153,11 +160,13 @@ int main(){
             space_pressed = false;
         }
 
+        particleWindow.clear();
+
         if (sim_running) {
             particleSim.updateParticles(time_seconds);
+        } else {
+            particleWindow.draw(pausedIndicator);
         }
-
-        particleWindow.clear();
 
 
         CircleShape particle_shape;

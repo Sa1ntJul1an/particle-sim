@@ -167,7 +167,7 @@ int main(){
             Vector2f particle_pos_sim = Vector2f(particle->getPosition()[0], particle->getPosition()[1]);
             Vector2f particle_pos_window = convertCoords(particle_pos_sim);
 
-            particle_pos_window = Vector2f(particle_pos_window.x + particle->getRadius(), particle_pos_window.y + particle->getRadius());
+            particle_pos_window = Vector2f(particle_pos_window.x - particle->getRadius(), particle_pos_window.y - particle->getRadius());
 
             particle_shape.setRadius(particle->getRadius());
             particle_shape.setFillColor(Color(particle->getColor()[0], particle->getColor()[1], particle->getColor()[2]));
@@ -233,7 +233,7 @@ int main(){
                 
                 Vertex line[] =
                 {
-                    Vertex(particle_pos_window, velVectorColor),
+                    Vertex(convertCoords(particle_pos_sim), velVectorColor),
                     Vertex(velocity_vector, velVectorColor)
                 };
 
@@ -252,7 +252,7 @@ int main(){
 
                 Vertex line[] =
                 {
-                    Vertex(particle_pos_window, accVectorColor),
+                    Vertex(convertCoords(particle_pos_sim), accVectorColor),
                     Vertex(acceleration_vector, accVectorColor)
                 };
 

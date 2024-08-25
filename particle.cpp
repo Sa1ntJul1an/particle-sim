@@ -18,8 +18,6 @@ Particle::Particle() {
     _position = {100, 100};
     _velocity = {0.0, 0.0};
     _acceleration = {0.0, 0.0};
-
-    _tolerance = 0.001;
 }
 
 Particle::Particle (float radius, float mass, float previous_time, std::vector<int> rgb, std::vector<float> position, std::vector<float> velocity, std::vector<float> acceleration){
@@ -33,8 +31,6 @@ Particle::Particle (float radius, float mass, float previous_time, std::vector<i
     _position = position;
     _velocity = velocity;
     _acceleration = acceleration;
-
-    _tolerance = 0.001;
 }
 
 std::vector<float> Particle::getPosition () {

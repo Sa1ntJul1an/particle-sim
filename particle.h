@@ -33,8 +33,6 @@ class Particle{
         std::vector<float> _position;
         std::vector<float> _velocity;
         std::vector<float> _acceleration;
-
-        float _tolerance;
 };
 
 #endif /* !PARTICLE_HEADER */

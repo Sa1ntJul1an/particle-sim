@@ -9,15 +9,29 @@ class Particle{
 
         Particle(float, float, float, std::vector<int>, std::vector<float>, std::vector<float>, std::vector<float>);
 
+        Particle(Particle&);
+
         std::vector<float> getPosition();
+
+        void setPosition(std::vector<float>);
 
         float getRadius();
 
         float getMass();
 
+        float getPreviousTime();
+
+        void setPreviousTime(float);
+        
         std::vector<int> getColor();
 
         std::vector<float> getVelocity();
+
+        void setVelocity(std::vector<float>);
+
+        void negateXVelocity();
+
+        void negateYVelocity();
 
         std::vector<float> getAcceleration();
 

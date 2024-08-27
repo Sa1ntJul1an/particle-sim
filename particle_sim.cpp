@@ -3,10 +3,16 @@
 #include <vector>
 #include <iostream>
 
-ParticleSim::ParticleSim(float G, float coefficientOfFriction, std::vector<Particle*> particles){
+ParticleSim::ParticleSim(float G, float coefficientOfFriction, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool collideWithParticles){
     _G = G;
     _coefficientOfFriction = coefficientOfFriction;
     _particles = particles;
+
+    _width = width;
+    _height = height;
+
+    _collideWithWalls = collideWithWalls;
+    _collideWithParticles = collideWithParticles;
 }
 
 void ParticleSim::addParticle(Particle* particle){
@@ -20,8 +26,7 @@ void ParticleSim::updateParticles(float current_time) {
 
         for (Particle* particle1 : _particles) {
 
-            //particle1->setAcceleration({0.0, 0.0});
-            
+          
             float Fx_total = 0.0;
             float Fy_total = 0.0;
 
@@ -41,6 +46,8 @@ void ParticleSim::updateParticles(float current_time) {
                 if (euclidean_distance > (particle1->getRadius() + particle2->getRadius())){        // only calculate force of attraction if particles are not touching
                     theta = atan2(delta_y, delta_x);
                     F = (_G * particle1->getMass() * particle2->getMass()) / pow(euclidean_distance, 2);
+                } else {    // collision
+                    
                 }
 
                 Fx_total += F * cos(theta);
@@ -53,7 +60,18 @@ void ParticleSim::updateParticles(float current_time) {
             std::vector<float> acceleration = {a_x, a_y};
 
             particle1->setAcceleration(acceleration);
-        }
+
+            // check for collisions with walls
+            if (_collideWithWalls){
+                if (particle1->getPosition()[0] <= 0 || particle1->getPosition()[0] >= _width){                      // left or right wall collision
+                    particle1->negateXVelocity();
+                }
+
+                if (particle1->getPosition()[1] <= 0 || particle1->getPosition()[1] >= _height) {                     // top or bottom wall collision
+                    particle1->negateYVelocity();
+                }
+            }
+    }
     } else if (_particles.size() == 1){
         _particles[0]->setAcceleration({0.0, 0.0});
     }
@@ -61,7 +79,6 @@ void ParticleSim::updateParticles(float current_time) {
     for (int i = 0; i < _particles.size(); i++){
         _particles[i]->updateParticle(current_time);
     }
-
 }
 
 ParticleSim::~ParticleSim(){

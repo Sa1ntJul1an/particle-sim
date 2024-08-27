@@ -33,32 +33,70 @@ Particle::Particle (float radius, float mass, float previous_time, std::vector<i
     _acceleration = acceleration;
 }
 
+Particle::Particle(Particle& otherParticle) {
+    _radius = otherParticle.getRadius();
+    _mass = otherParticle.getMass();
+
+    _previous_time = otherParticle.getPreviousTime();
+
+    _rgb = otherParticle.getColor();
+
+    _position = otherParticle.getPosition();
+    _velocity = otherParticle.getVelocity();
+    _acceleration = otherParticle.getAcceleration();
+
+}
+
 std::vector<float> Particle::getPosition () {
-    return _position;
+    return this->_position;
+}
+
+void Particle::setPosition(std::vector<float> position){
+    _position = position;
 }
 
 float Particle::getRadius() {
-    return _radius;
+    return this->_radius;
 }
 
 float Particle::getMass() {
-    return _mass;
+    return this->_mass;
 }
 
 std::vector<int> Particle::getColor() {
-    return _rgb;
+    return this->_rgb;
 }
 
 std::vector<float> Particle::getVelocity() {
-    return _velocity;
+    return this->_velocity;
+}
+
+void Particle::setVelocity(std::vector<float> velocity) {
+    _velocity = velocity;
+}
+
+void Particle::negateXVelocity() {
+    _velocity[0] = -_velocity[0];
+}
+
+void Particle::negateYVelocity() {
+    _velocity[1] = -_velocity[1];
 }
 
 std::vector<float> Particle::getAcceleration() {
-    return _acceleration;
+    return this->_acceleration;
 }
 
 void Particle::setAcceleration(std::vector<float> acc){
     _acceleration = acc;
+}
+
+float Particle::getPreviousTime() {
+    return this->_previous_time;
+}
+
+void Particle::setPreviousTime(float time) {
+    _previous_time = time;
 }
 
 void Particle::updateParticle(float current_time) {

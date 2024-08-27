@@ -27,7 +27,7 @@ mt19937 mt(time(nullptr));
 
 struct testParticle{
     float radius = 4.0;
-    float mass = 5000000000000.0;
+    float mass = 50000000000000.0;
     vector<int> rgb = {255, 0, 0};
     vector<float> position = {int(WIDTH / 2), int(HEIGHT / 2)};
     vector<float> velocity = {0.0, 0.0};
@@ -67,7 +67,10 @@ int main(){
 
     bool displayValues = true;
 
-    vector<float> mousePosition;
+    bool collideWithWalls = true;
+    bool collideWithParticles = true;
+
+    vector<float> mousePosition = {-10.0, -10.0};
     bool spawningParticle = false;
 
     testParticle particle_struct;
@@ -99,7 +102,12 @@ int main(){
 
     vector<CircleShape> particle_shapes;
 
-    ParticleSim particleSim(G, coefficientOfFriction, particles);
+    ParticleSim particleSim(G, coefficientOfFriction, particles, WIDTH, HEIGHT, collideWithWalls, collideWithParticles);
+
+    // spawn a particle with a fixed position at first, until mouse released then unfix position 
+    Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
+
+    Particle * particle_pointer = nullptr;
 
     while(particleWindow.isOpen() && menuWindow.isOpen()){
 
@@ -110,16 +118,23 @@ int main(){
         mousePosition = {float(Mouse::getPosition(particleWindow).x), float(Mouse::getPosition(particleWindow).y)};
 
         if (Mouse::isButtonPressed(Mouse::Left) && !spawningParticle && mousePosition[0] < WIDTH && mousePosition[0] >= 0 && mousePosition[1] < HEIGHT && mousePosition[1] >= 0){
-            
-            Particle* particle = new Particle(particle_struct.radius, particle_struct.mass, time_seconds, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
-            
-            particles.push_back(particle);
-            particleSim.addParticle(particle);
-
             spawningParticle = true;
+            
+            particle_pointer = new Particle(particle);
 
-        } else if (!Mouse::isButtonPressed(Mouse::Left))
+            particles.push_back(particle_pointer);
+            particleSim.addParticle(particle_pointer);
+
+            particle_pointer->setPosition(convertCoords(mousePosition));
+        } else if (spawningParticle  && Mouse::isButtonPressed(Mouse::Left)) {
+            particle_pointer->setPosition(convertCoords(mousePosition));
+            particle_pointer->setVelocity({0.0, 0.0});
+        } else if (spawningParticle && !Mouse::isButtonPressed(Mouse::Left))
         {
+            particle_pointer->setPreviousTime(time_seconds);
+
+            particle_pointer = nullptr;
+
             spawningParticle = false;
         }
 

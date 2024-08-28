@@ -146,6 +146,10 @@ int main(){
 
         } else {        // mouse is not pressed, reset mouse held bool
             mouse_held = false;
+
+            if(setting_velocity) {
+                setting_velocity = false;
+            }
         }
 
         // CLOSE WINDOWS IF X PRESSED

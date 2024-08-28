@@ -65,13 +65,17 @@ int main(){
     bool drawVelocityVectors = true;
     bool drawAccelerationVectors = true;
 
+    float vectorScaleFactor = 60.0;
+
     bool displayValues = true;
 
     bool collideWithWalls = true;
     bool collideWithParticles = true;
 
     vector<float> mousePosition = {-10.0, -10.0};
-    bool spawningParticle = false;
+    vector<float> fixed_particle_position = {0.0, 0.0};
+    bool spawning_particle = false;
+    bool setting_velocity = false;
 
     testParticle particle_struct;
 
@@ -90,6 +94,7 @@ int main(){
 
     bool sim_running = true;
     bool space_pressed = false;
+    bool mouse_held = false;
 
     Text pausedIndicator; 
     pausedIndicator.setFont(font);
@@ -117,27 +122,31 @@ int main(){
         // subtract height from y coord to invert y axis (bottom left of render window is now (0,0))
         mousePosition = {float(Mouse::getPosition(particleWindow).x), float(Mouse::getPosition(particleWindow).y)};
 
-        if (Mouse::isButtonPressed(Mouse::Left) && !spawningParticle && mousePosition[0] < WIDTH && mousePosition[0] >= 0 && mousePosition[1] < HEIGHT && mousePosition[1] >= 0){
-            spawningParticle = true;
-            
-            particle_pointer = new Particle(particle);
+        // if mouse pressed within bounds of render window  
+        if (Mouse::isButtonPressed(Mouse::Left) && mousePosition[0] < WIDTH && mousePosition[0] >= 0 && mousePosition[1] < HEIGHT && mousePosition[1] >= 0){
 
-            particles.push_back(particle_pointer);
-            particleSim.addParticle(particle_pointer);
+            if (!mouse_held) {
+                mouse_held = true;
+                
+                if (spawning_particle) {
+                    spawning_particle = false;
+                    setting_velocity = true;
+                    fixed_particle_position = convertCoords(particle_pointer->getPosition());
+                } else if (setting_velocity) {
+                    setting_velocity = false;
+                    particle_pointer = nullptr;
+                } else {
+                    spawning_particle = true;
+                    particle_pointer = new Particle(particle);
+                    particles.push_back(particle_pointer);
+                    particleSim.addParticle(particle_pointer);
+                    particle_pointer->setPosition(convertCoords(mousePosition));
+                }
+            }
 
-            particle_pointer->setPosition(convertCoords(mousePosition));
-        } else if (spawningParticle  && Mouse::isButtonPressed(Mouse::Left)) {
-            particle_pointer->setPosition(convertCoords(mousePosition));
-            particle_pointer->setVelocity({0.0, 0.0});
-        } else if (spawningParticle && !Mouse::isButtonPressed(Mouse::Left))
-        {
-            particle_pointer->setPreviousTime(time_seconds);
-
-            particle_pointer = nullptr;
-
-            spawningParticle = false;
+        } else {        // mouse is not pressed, reset mouse held bool
+            mouse_held = false;
         }
-
 
         // CLOSE WINDOWS IF X PRESSED
         // ==========================================================
@@ -181,6 +190,22 @@ int main(){
             particleSim.updateParticles(time_seconds);
         } else {
             particleWindow.draw(pausedIndicator);
+        }
+
+        if (spawning_particle) {
+            particle_pointer->setPosition(convertCoords(mousePosition));
+            particle_pointer->setVelocity({0.0, 0.0});
+        } else if (setting_velocity) {
+            particle_pointer->setPosition(convertCoords(fixed_particle_position));
+            particle_pointer->setPreviousTime(time_seconds);
+
+            float delta_x = particle_pointer->getPosition()[0] - convertCoords(mousePosition)[0];
+            float delta_y = particle_pointer->getPosition()[1] - convertCoords(mousePosition)[1];
+
+            particle_pointer->setVelocity({delta_x / vectorScaleFactor, delta_y / vectorScaleFactor});
+        } else {
+            fixed_particle_position = {0.0, 0.0};
+            particle_pointer = nullptr;
         }
 
 
@@ -250,8 +275,8 @@ int main(){
                 
                 Vector2f velocity_vector;
 
-                velocity_vector.x = particle_pos_sim.x + particle->getVelocity()[0] * 60;
-                velocity_vector.y = particle_pos_sim.y + particle->getVelocity()[1] * 60;
+                velocity_vector.x = particle_pos_sim.x + particle->getVelocity()[0] * vectorScaleFactor;
+                velocity_vector.y = particle_pos_sim.y + particle->getVelocity()[1] * vectorScaleFactor;
 
                 velocity_vector = convertCoords(velocity_vector);                
                 
@@ -269,8 +294,8 @@ int main(){
                 
                 Vector2f acceleration_vector;
 
-                acceleration_vector.x = particle_pos_sim.x + particle->getAcceleration()[0] * 60;
-                acceleration_vector.y = particle_pos_sim.y + particle->getAcceleration()[1] * 60;
+                acceleration_vector.x = particle_pos_sim.x + particle->getAcceleration()[0] * vectorScaleFactor;
+                acceleration_vector.y = particle_pos_sim.y + particle->getAcceleration()[1] * vectorScaleFactor;
 
                 acceleration_vector = convertCoords(acceleration_vector);
 

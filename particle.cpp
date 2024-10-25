@@ -47,7 +47,7 @@ Particle::Particle(Particle& otherParticle) {
 
 }
 
-std::vector<float> Particle::getPosition () {
+std::vector<float> Particle::getPosition () const {
     return this->_position;
 }
 
@@ -55,19 +55,19 @@ void Particle::setPosition(std::vector<float> position){
     _position = position;
 }
 
-float Particle::getRadius() {
+float Particle::getRadius() const {
     return this->_radius;
 }
 
-float Particle::getMass() {
+float Particle::getMass() const {
     return this->_mass;
 }
 
-std::vector<int> Particle::getColor() {
+std::vector<int> Particle::getColor() const {
     return this->_rgb;
 }
 
-std::vector<float> Particle::getVelocity() {
+std::vector<float> Particle::getVelocity() const {
     return this->_velocity;
 }
 

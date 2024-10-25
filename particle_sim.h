@@ -12,6 +12,8 @@ class ParticleSim {
 
         void addParticle(Particle*);
 
+        void elasticCollision(Particle*, Particle*);
+
         void updateParticles(float);
 
     private:
@@ -26,6 +28,11 @@ class ParticleSim {
 
         std::vector<Particle*> _particles;
 
+        float _delta_x(const Particle*, const Particle*);
+        float _delta_y(const Particle*, const Particle*);
+        float _euclideanDistance(const Particle*, const Particle*);
+        float _xComponent(const float, const float);
+        float _yComponent(const float, const float);
 };
 
 

@@ -11,21 +11,21 @@ class Particle{
 
         Particle(Particle&);
 
-        std::vector<float> getPosition();
+        std::vector<float> getPosition() const;
 
         void setPosition(std::vector<float>);
 
-        float getRadius();
+        float getRadius() const;
 
-        float getMass();
+        float getMass() const;
 
         float getPreviousTime();
 
         void setPreviousTime(float);
         
-        std::vector<int> getColor();
+        std::vector<int> getColor() const;
 
-        std::vector<float> getVelocity();
+        std::vector<float> getVelocity() const;
 
         void setVelocity(std::vector<float>);
 

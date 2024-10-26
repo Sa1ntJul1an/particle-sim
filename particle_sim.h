@@ -2,18 +2,21 @@
 #define PARTICLE_SIM_HEADER
 
 #include "particle.h"
+#include "collisionModels.h"
 #include <vector>
 #include <algorithm>
 
 class ParticleSim {
     public: 
-        ParticleSim(float G, float viscosityOfMedmium, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool collideWithParticles, bool isFrictionEnabled);
+        ParticleSim(float G, float viscosityOfMedmium, CollisionModels collisionMode, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool isFrictionEnabled);
 
         ~ParticleSim();
 
         void addParticle(Particle*);
 
         void updateParticles(float);
+
+        std::vector<Particle*> getParticles() const;
 
         void reset();
 
@@ -25,8 +28,9 @@ class ParticleSim {
         int _height;
 
         bool _collideWithWalls;
-        bool _collideWithParticles;
         bool _isFrictionEnabled;
+
+        CollisionModels _collisionModel;
 
         std::vector<Particle*> _particles;
 
@@ -37,6 +41,7 @@ class ParticleSim {
         float _xComponent(const float, const float);
         float _yComponent(const float, const float);
         void _elasticCollision(Particle*, Particle*);
+        void _inelasticCollision(Particle *, Particle *);
 
         // custom pair comparator:
         struct _PointerPairComparator {

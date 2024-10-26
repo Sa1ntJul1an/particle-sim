@@ -64,8 +64,20 @@ float Particle::getRadius() const {
     return this->_radius;
 }
 
+void Particle::setRadius(float radius) {
+    if (radius > 0) {
+        _radius = radius;
+    }
+}
+
 float Particle::getMass() const {
     return this->_mass;
+}
+
+void Particle::setMass(float mass) {
+    if (mass > 0) {
+        _mass = mass;
+    }
 }
 
 std::vector<int> Particle::getColor() const {

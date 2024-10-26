@@ -17,7 +17,11 @@ class Particle{
 
         float getRadius() const;
 
+        void setRadius(float);
+
         float getMass() const;
+
+        void setMass(float);
 
         float getPreviousTime();
 

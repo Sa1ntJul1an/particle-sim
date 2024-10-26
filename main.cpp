@@ -6,6 +6,7 @@
 #include <cmath>
 #include <sstream>
 
+#include "collisionModels.h"
 #include "particle.h"
 #include "particle_sim.h"
 
@@ -70,8 +71,9 @@ int main(){
     bool displayValues = true;
 
     bool collideWithWalls = true;
-    bool collideWithParticles = true;
     bool isFrictionEnabled = true;
+
+    CollisionModels collisionModel = CollisionModels::Inelastic;
 
     vector<float> mousePosition = {-10.0, -10.0};
     vector<float> fixed_particle_position = {0.0, 0.0};
@@ -108,7 +110,7 @@ int main(){
 
     vector<CircleShape> particle_shapes;
 
-    ParticleSim particleSim(G, viscosityOfMedium, particles, WIDTH, HEIGHT, collideWithWalls, collideWithParticles, isFrictionEnabled);
+    ParticleSim particleSim(G, viscosityOfMedium, collisionModel, particles, WIDTH, HEIGHT, collideWithWalls, isFrictionEnabled);
 
     // spawn a particle with a fixed position at first, until mouse released then unfix position 
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
@@ -139,7 +141,6 @@ int main(){
                 } else {
                     spawning_particle = true;
                     particle_pointer = new Particle(particle);
-                    particles.push_back(particle_pointer);
                     particleSim.addParticle(particle_pointer);
                     particle_pointer->setPosition(convertCoords(mousePosition));
                 }
@@ -191,7 +192,6 @@ int main(){
 
         if (Keyboard::isKeyPressed(Keyboard::R)) {
             particleSim.reset();
-            particles.clear();
         }
 
         particleWindow.clear();
@@ -218,7 +218,7 @@ int main(){
             particle_pointer = nullptr;
         }
 
-
+        particles = particleSim.getParticles();
         CircleShape particle_shape;
         for (int i = 0; i < particles.size(); i ++){
             Particle* particle = particles[i];

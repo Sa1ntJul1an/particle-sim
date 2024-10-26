@@ -37,6 +37,10 @@ class Particle{
 
         void setAcceleration(std::vector<float>);
 
+        bool getIsColliding() const;
+
+        void setIsColliding(bool);
+
         void updateParticle(float);
 
     private:
@@ -47,6 +51,8 @@ class Particle{
         std::vector<float> _position;
         std::vector<float> _velocity;
         std::vector<float> _acceleration;
+
+        bool _isColliding;
 };
 
 #endif /* !PARTICLE_HEADER */

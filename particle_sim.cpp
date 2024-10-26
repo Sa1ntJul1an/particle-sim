@@ -20,16 +20,38 @@ void ParticleSim::addParticle(Particle* particle) {
     _particles.push_back(particle);
 }
 
-void ParticleSim::elasticCollision(Particle* particle1, Particle* particle2) {
+void ParticleSim::_elasticCollision(Particle* particle1, Particle* particle2) {
     std::vector<float> particle1_pos, particle2_pos, particle1_vel, particle2_vel;
 
+    float particle1_mass = particle1->getMass();
+    float particle2_mass = particle2->getMass();
 
+    float vel1_ix, vel1_iy, vel2_ix, vel2_iy;
+    vel1_ix = particle1->getVelocity()[0];
+    vel1_iy = particle1->getVelocity()[1];
+    vel2_ix = particle2->getVelocity()[0];
+    vel2_iy = particle2->getVelocity()[1];
+
+    float vel1_fx, vel1_fy, vel2_fx, vel2_fy;
+
+    vel2_fx = (2 * particle1_mass * vel1_ix + vel2_ix * (particle2_mass - particle1_mass)) / (particle2_mass + particle1_mass);
+    vel2_fy = (2 * particle1_mass * vel1_iy + vel2_iy * (particle2_mass - particle1_mass)) / (particle2_mass + particle1_mass);
+
+    vel1_fx = vel2_ix + vel2_fx - vel1_ix;
+    vel1_fy = vel2_iy + vel2_fy - vel1_iy;
+
+    std::vector<float> vel1_f, vel2_f; 
+    vel1_f = {vel1_fx, vel1_fy};
+    vel2_f = {vel2_fx, vel2_fy};
+
+    particle1->setVelocity(vel1_f);
+    particle2->setVelocity(vel2_f);
 }
 
 void ParticleSim::updateParticles(float current_time) {
     double pi = M_PI;
 
-    std::set<std::pair<Particle*, Particle*>> collidingPairs;
+    std::set<std::pair<Particle*, Particle*>, _PointerPairComparator> collidingPairs;
 
     if (_particles.size() > 1){
 
@@ -48,28 +70,26 @@ void ParticleSim::updateParticles(float current_time) {
 
                 float F = 0;
 
-                float delta_x = _delta_x(particle1, particle2);
-                float delta_y = _delta_y(particle1, particle2);
-
-                float theta = atan2(delta_y, delta_x);
-                if (euclidean_distance > (particle1->getRadius() + particle2->getRadius())){        // only calculate force of attraction if particles are not touching
+                if (euclidean_distance >= (particle1->getRadius() + particle2->getRadius())){        // only calculate force of attraction if particles are not touching
                     F = (_G * particle1->getMass() * particle2->getMass()) / pow(euclidean_distance, 2);
+
+                    if (particle1->getIsColliding() && particle2->getIsColliding()) {
+                        particle1->setIsColliding(false);
+                        particle2->setIsColliding(false);
+                    }
                 } else {    // collision
-                    std::pair<Particle*, Particle*> collidingPair = {particle1, particle2};
-                    collidingPairs.insert(collidingPair);
+                    if (!particle1->getIsColliding() && !particle2->getIsColliding()) {
+                        std::pair<Particle*, Particle*> collidingPair = {particle1, particle2};
+                        collidingPairs.insert(collidingPair);
+                    }
+                    particle1->setIsColliding(true);
+                    particle2->setIsColliding(true);
+
                     continue;
                 }
-                // TODO : custom pair comparator:
-                // struct PairComparator {
-                //     bool operator()(const std::pair<Particle*, Particle*>& p1, const std::pair<Particle*, Particle*>& p2) const {
-                //         return p1.first < p2.first || (p1.first == p2.first && p1.second < p2.second);
-                //     }
-                // };
-
-                // std::set<std::pair<Particle*, Particle*>, PairComparator> collidingPairs;
-
-                Fx_total += _xComponent(F, theta);
-                Fy_total += _yComponent(F, theta);
+    
+                Fx_total += _xComponent(F,  _theta(particle1, particle2));
+                Fy_total += _yComponent(F,  _theta(particle1, particle2));
             }
 
             float a_x = Fx_total / particle1->getMass();
@@ -94,6 +114,10 @@ void ParticleSim::updateParticles(float current_time) {
         _particles[0]->setAcceleration({0.0, 0.0});
     }
 
+    for (std::pair<Particle*, Particle*> collidingPair : collidingPairs){
+        _elasticCollision(collidingPair.first, collidingPair.second);
+    }
+
     for (int i = 0; i < _particles.size(); i++){
         _particles[i]->updateParticle(current_time);
     }
@@ -109,6 +133,10 @@ float ParticleSim::_delta_y(const Particle* particle1, const Particle* particle2
 
 float ParticleSim::_euclideanDistance(const Particle* particle1, const Particle* particle2) {
     return sqrt(pow(_delta_x(particle1, particle2), 2) + pow(_delta_y(particle1, particle2), 2));
+}
+
+float ParticleSim::_theta(const Particle* particle1, const Particle* particle2) {
+    return atan2(_delta_y(particle1, particle2), _delta_x(particle1, particle2));
 }
 
 float ParticleSim::_xComponent(const float value, const float thetaRad) {

@@ -147,6 +147,10 @@ float ParticleSim::_yComponent(const float value, const float thetaRad) {
     return value * float(sin(thetaRad));
 }
 
+void ParticleSim::reset() {
+    _particles.clear();
+}
+
 ParticleSim::~ParticleSim(){
     for (Particle* particle : _particles) {
         delete particle;

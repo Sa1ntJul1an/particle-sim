@@ -188,6 +188,11 @@ int main(){
             space_pressed = false;
         }
 
+        if (Keyboard::isKeyPressed(Keyboard::R)) {
+            particleSim.reset();
+            particles.clear();
+        }
+
         particleWindow.clear();
 
         if (sim_running) {

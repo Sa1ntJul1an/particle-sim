@@ -15,6 +15,8 @@ class ParticleSim {
 
         void updateParticles(float);
 
+        void reset();
+
     private:
         float _G;
         float _coefficientOfFriction;

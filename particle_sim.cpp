@@ -70,7 +70,7 @@ void ParticleSim::updateParticles(float current_time) {
 
                 float F = 0;
 
-                if (euclidean_distance >= (particle1->getRadius() + particle2->getRadius())){        // only calculate force of attraction if particles are not touching
+                if (euclidean_distance > (particle1->getRadius() + particle2->getRadius())){        // only calculate force of attraction if particles are not touching
                     F = (_G * particle1->getMass() * particle2->getMass()) / pow(euclidean_distance, 2);
 
                     if (particle1->getIsColliding() && particle2->getIsColliding()) {

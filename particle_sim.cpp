@@ -67,10 +67,9 @@ void ParticleSim::_inelasticCollision(Particle * particle1, Particle * particle2
     particle1->setMass(particle1->getMass() + particle2->getMass());
     particle1->setVelocity({vel_fx, vel_fy});
 
-    auto first_particle = _particles.begin();
-    auto last_particle = _particles.end();
-    auto it = std::find(first_particle, last_particle, particle2);
-    _particles.erase(it);
+    particle1->setIsColliding(false);
+
+    _particles.erase(std::find(_particles.begin(), _particles.end(), particle2));
 }
 
 void ParticleSim::updateParticles(float current_time) {

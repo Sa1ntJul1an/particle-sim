@@ -11,21 +11,21 @@ class Particle{
 
         Particle(Particle&);
 
-        std::vector<float> getPosition();
+        std::vector<float> getPosition() const;
 
         void setPosition(std::vector<float>);
 
-        float getRadius();
+        float getRadius() const;
 
-        float getMass();
+        float getMass() const;
 
         float getPreviousTime();
 
         void setPreviousTime(float);
         
-        std::vector<int> getColor();
+        std::vector<int> getColor() const;
 
-        std::vector<float> getVelocity();
+        std::vector<float> getVelocity() const;
 
         void setVelocity(std::vector<float>);
 
@@ -37,6 +37,10 @@ class Particle{
 
         void setAcceleration(std::vector<float>);
 
+        bool getIsColliding() const;
+
+        void setIsColliding(bool);
+
         void updateParticle(float);
 
     private:
@@ -47,6 +51,8 @@ class Particle{
         std::vector<float> _position;
         std::vector<float> _velocity;
         std::vector<float> _acceleration;
+
+        bool _isColliding;
 };
 
 #endif /* !PARTICLE_HEADER */

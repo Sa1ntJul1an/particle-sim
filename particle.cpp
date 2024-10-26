@@ -18,6 +18,8 @@ Particle::Particle() {
     _position = {100, 100};
     _velocity = {0.0, 0.0};
     _acceleration = {0.0, 0.0};
+
+    _isColliding = false;
 }
 
 Particle::Particle (float radius, float mass, float previous_time, std::vector<int> rgb, std::vector<float> position, std::vector<float> velocity, std::vector<float> acceleration){
@@ -31,6 +33,8 @@ Particle::Particle (float radius, float mass, float previous_time, std::vector<i
     _position = position;
     _velocity = velocity;
     _acceleration = acceleration;
+
+    _isColliding = false;
 }
 
 Particle::Particle(Particle& otherParticle) {
@@ -45,9 +49,10 @@ Particle::Particle(Particle& otherParticle) {
     _velocity = otherParticle.getVelocity();
     _acceleration = otherParticle.getAcceleration();
 
+    _isColliding = false;
 }
 
-std::vector<float> Particle::getPosition () {
+std::vector<float> Particle::getPosition () const {
     return this->_position;
 }
 
@@ -55,19 +60,19 @@ void Particle::setPosition(std::vector<float> position){
     _position = position;
 }
 
-float Particle::getRadius() {
+float Particle::getRadius() const {
     return this->_radius;
 }
 
-float Particle::getMass() {
+float Particle::getMass() const {
     return this->_mass;
 }
 
-std::vector<int> Particle::getColor() {
+std::vector<int> Particle::getColor() const {
     return this->_rgb;
 }
 
-std::vector<float> Particle::getVelocity() {
+std::vector<float> Particle::getVelocity() const {
     return this->_velocity;
 }
 
@@ -97,6 +102,14 @@ float Particle::getPreviousTime() {
 
 void Particle::setPreviousTime(float time) {
     _previous_time = time;
+}
+
+bool Particle::getIsColliding() const {
+    return this->_isColliding;
+}
+
+void Particle::setIsColliding(bool isColliding) {
+    _isColliding = isColliding;
 }
 
 void Particle::updateParticle(float current_time) {

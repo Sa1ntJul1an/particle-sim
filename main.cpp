@@ -58,7 +58,7 @@ Vector2f convertCoords(Vector2f coords){
 int main(){
 
     float G = 0.0000000000667;
-    float coefficientOfFriction = 0;
+    float viscosityOfMedium = 100000000000;
 
     vector<Particle*> particles;
 
@@ -71,6 +71,7 @@ int main(){
 
     bool collideWithWalls = true;
     bool collideWithParticles = true;
+    bool isFrictionEnabled = true;
 
     vector<float> mousePosition = {-10.0, -10.0};
     vector<float> fixed_particle_position = {0.0, 0.0};
@@ -107,7 +108,7 @@ int main(){
 
     vector<CircleShape> particle_shapes;
 
-    ParticleSim particleSim(G, coefficientOfFriction, particles, WIDTH, HEIGHT, collideWithWalls, collideWithParticles);
+    ParticleSim particleSim(G, viscosityOfMedium, particles, WIDTH, HEIGHT, collideWithWalls, collideWithParticles, isFrictionEnabled);
 
     // spawn a particle with a fixed position at first, until mouse released then unfix position 
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);

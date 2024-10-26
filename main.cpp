@@ -73,7 +73,7 @@ int main(){
     bool collideWithWalls = true;
     bool isFrictionEnabled = true;
 
-    CollisionModels collisionModel = CollisionModels::NoCollision;
+    CollisionModels collisionModel = CollisionModels::Inelastic;
 
     vector<float> mousePosition = {-10.0, -10.0};
     vector<float> fixed_particle_position = {0.0, 0.0};
@@ -141,7 +141,6 @@ int main(){
                 } else {
                     spawning_particle = true;
                     particle_pointer = new Particle(particle);
-                    particles.push_back(particle_pointer);
                     particleSim.addParticle(particle_pointer);
                     particle_pointer->setPosition(convertCoords(mousePosition));
                 }
@@ -193,7 +192,6 @@ int main(){
 
         if (Keyboard::isKeyPressed(Keyboard::R)) {
             particleSim.reset();
-            particles.clear();
         }
 
         particleWindow.clear();
@@ -220,7 +218,7 @@ int main(){
             particle_pointer = nullptr;
         }
 
-
+        particles = particleSim.getParticles();
         CircleShape particle_shape;
         for (int i = 0; i < particles.size(); i ++){
             Particle* particle = particles[i];

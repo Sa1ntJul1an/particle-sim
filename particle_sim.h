@@ -16,6 +16,8 @@ class ParticleSim {
 
         void updateParticles(float);
 
+        std::vector<Particle*> getParticles() const;
+
         void reset();
 
     private:
@@ -39,6 +41,7 @@ class ParticleSim {
         float _xComponent(const float, const float);
         float _yComponent(const float, const float);
         void _elasticCollision(Particle*, Particle*);
+        void _inelasticCollision(Particle *, Particle *);
 
         // custom pair comparator:
         struct _PointerPairComparator {

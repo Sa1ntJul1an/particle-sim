@@ -4,7 +4,7 @@
 #include <iostream>
 #include <set>
 
-ParticleSim::ParticleSim(float G, float viscosityOfMedium, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool collideWithParticles, bool isFrictionEnabled){
+ParticleSim::ParticleSim(float G, float viscosityOfMedium, CollisionModels collisionModel, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool isFrictionEnabled){
     _G = G;
     _viscosityOfMedmium = viscosityOfMedium;
     _particles = particles;
@@ -13,8 +13,9 @@ ParticleSim::ParticleSim(float G, float viscosityOfMedium, std::vector<Particle*
     _height = height;
 
     _collideWithWalls = collideWithWalls;
-    _collideWithParticles = collideWithParticles;
     _isFrictionEnabled = isFrictionEnabled;
+
+    _collisionModel = collisionModel;
 }
 
 void ParticleSim::addParticle(Particle* particle) {
@@ -77,7 +78,7 @@ void ParticleSim::updateParticles(float current_time) {
                     particle2->setIsColliding(false);
                 }
             } else {    // collision
-                if (!particle1->getIsColliding() && !particle2->getIsColliding()) {
+                 if (!particle1->getIsColliding() && !particle2->getIsColliding()) {
                     std::pair<Particle*, Particle*> collidingPair = {particle1, particle2};
                     collidingPairs.insert(collidingPair);
                 }
@@ -119,7 +120,18 @@ void ParticleSim::updateParticles(float current_time) {
     }
 
     for (std::pair<Particle*, Particle*> collidingPair : collidingPairs){
-        _elasticCollision(collidingPair.first, collidingPair.second);
+        switch (_collisionModel)
+            {
+            case CollisionModels::Elastic:
+                _elasticCollision(collidingPair.first, collidingPair.second);
+                break;
+
+            case CollisionModels::Inelastic:
+                break;
+            
+            default:
+                break;
+            }
     }
 
     for (int i = 0; i < _particles.size(); i++){

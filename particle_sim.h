@@ -2,12 +2,13 @@
 #define PARTICLE_SIM_HEADER
 
 #include "particle.h"
+#include "collisionModels.h"
 #include <vector>
 #include <algorithm>
 
 class ParticleSim {
     public: 
-        ParticleSim(float G, float viscosityOfMedmium, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool collideWithParticles, bool isFrictionEnabled);
+        ParticleSim(float G, float viscosityOfMedmium, CollisionModels collisionMode, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool isFrictionEnabled);
 
         ~ParticleSim();
 
@@ -25,8 +26,9 @@ class ParticleSim {
         int _height;
 
         bool _collideWithWalls;
-        bool _collideWithParticles;
         bool _isFrictionEnabled;
+
+        CollisionModels _collisionModel;
 
         std::vector<Particle*> _particles;
 

@@ -4,9 +4,9 @@
 #include <iostream>
 #include <set>
 
-ParticleSim::ParticleSim(float G, float coefficientOfFriction, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool collideWithParticles){
+ParticleSim::ParticleSim(float G, float viscosityOfMedium, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool collideWithParticles, bool isFrictionEnabled){
     _G = G;
-    _coefficientOfFriction = coefficientOfFriction;
+    _viscosityOfMedmium = viscosityOfMedium;
     _particles = particles;
 
     _width = width;
@@ -14,6 +14,7 @@ ParticleSim::ParticleSim(float G, float coefficientOfFriction, std::vector<Parti
 
     _collideWithWalls = collideWithWalls;
     _collideWithParticles = collideWithParticles;
+    _isFrictionEnabled = isFrictionEnabled;
 }
 
 void ParticleSim::addParticle(Particle* particle) {
@@ -53,65 +54,68 @@ void ParticleSim::updateParticles(float current_time) {
 
     std::set<std::pair<Particle*, Particle*>, _PointerPairComparator> collidingPairs;
 
-    if (_particles.size() > 1){
+    for (Particle* particle1 : _particles) {
 
-        for (Particle* particle1 : _particles) {
-          
-            float Fx_total = 0.0;
-            float Fy_total = 0.0;
+        float Fx_total = 0.0;
+        float Fy_total = 0.0;
 
-            for (Particle* particle2 : _particles) {
+        for (Particle* particle2 : _particles) {
 
-                if (particle1 == particle2){    // we do not want to calculate attraction between particles and themselves
-                    continue;
-                }
-
-                float euclidean_distance = _euclideanDistance(particle1, particle2);
-
-                float F = 0;
-
-                if (euclidean_distance > (particle1->getRadius() + particle2->getRadius())){        // only calculate force of attraction if particles are not touching
-                    F = (_G * particle1->getMass() * particle2->getMass()) / pow(euclidean_distance, 2);
-
-                    if (particle1->getIsColliding() && particle2->getIsColliding()) {
-                        particle1->setIsColliding(false);
-                        particle2->setIsColliding(false);
-                    }
-                } else {    // collision
-                    if (!particle1->getIsColliding() && !particle2->getIsColliding()) {
-                        std::pair<Particle*, Particle*> collidingPair = {particle1, particle2};
-                        collidingPairs.insert(collidingPair);
-                    }
-                    particle1->setIsColliding(true);
-                    particle2->setIsColliding(true);
-
-                    continue;
-                }
-    
-                Fx_total += _xComponent(F,  _theta(particle1, particle2));
-                Fy_total += _yComponent(F,  _theta(particle1, particle2));
+            if (particle1 == particle2){    // we do not want to calculate attraction between particles and themselves
+                continue;
             }
 
-            float a_x = Fx_total / particle1->getMass();
-            float a_y = Fy_total / particle1->getMass();
+            float euclidean_distance = _euclideanDistance(particle1, particle2);
 
-            std::vector<float> acceleration = {a_x, a_y};
+            float F = 0;
 
-            particle1->setAcceleration(acceleration);
+            if (euclidean_distance > (particle1->getRadius() + particle2->getRadius())){        // only calculate force of attraction if particles are not touching
+                F = (_G * particle1->getMass() * particle2->getMass()) / pow(euclidean_distance, 2);
 
-            // check for collisions with walls
-            if (_collideWithWalls){
-                if (particle1->getPosition()[0] <= 0 || particle1->getPosition()[0] >= _width){                      // left or right wall collision
-                    particle1->negateXVelocity();
+                if (particle1->getIsColliding() && particle2->getIsColliding()) {
+                    particle1->setIsColliding(false);
+                    particle2->setIsColliding(false);
                 }
-
-                if (particle1->getPosition()[1] <= 0 || particle1->getPosition()[1] >= _height) {                     // top or bottom wall collision
-                    particle1->negateYVelocity();
+            } else {    // collision
+                if (!particle1->getIsColliding() && !particle2->getIsColliding()) {
+                    std::pair<Particle*, Particle*> collidingPair = {particle1, particle2};
+                    collidingPairs.insert(collidingPair);
                 }
+                particle1->setIsColliding(true);
+                particle2->setIsColliding(true);
+
+                continue;
             }
-    }
-    } else if (_particles.size() == 1){
-        _particles[0]->setAcceleration({0.0, 0.0});
+
+            Fx_total += _xComponent(F,  _theta(particle1, particle2));
+            Fy_total += _yComponent(F,  _theta(particle1, particle2));
+        }
+
+        float friction_force_x = 0.0;
+        float friction_force_y = 0.0;
+        if (_isFrictionEnabled) {
+            // stokes law for force of drag on a sphere
+            friction_force_x = 6 * M_PI * particle1->getRadius() * _viscosityOfMedmium * particle1->getVelocity()[0];
+            friction_force_y = 6 * M_PI * particle1->getRadius() * _viscosityOfMedmium * particle1->getVelocity()[1];
+        }
+
+        float a_x = (Fx_total - friction_force_x) / particle1->getMass();
+        float a_y = (Fy_total - friction_force_y) / particle1->getMass();
+
+        std::vector<float> acceleration = {a_x, a_y};
+
+        particle1->setAcceleration(acceleration);
+
+        // check for collisions with walls
+        if (_collideWithWalls){
+            if (particle1->getPosition()[0] <= 0 || particle1->getPosition()[0] >= _width){                      // left or right wall collision
+                particle1->negateXVelocity();
+            }
+
+            if (particle1->getPosition()[1] <= 0 || particle1->getPosition()[1] >= _height) {                     // top or bottom wall collision
+                particle1->negateYVelocity();
+            }
+        }
     }
 
     for (std::pair<Particle*, Particle*> collidingPair : collidingPairs){

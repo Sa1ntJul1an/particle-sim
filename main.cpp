@@ -37,8 +37,9 @@ struct testParticle{
 
 struct TracePoint{
     Vector2f position; 
-    Color color;
+    vector<int> color;
     int spawnIteration; 
+    bool markedForDelete = false;
 };
 
 // convert coordinate from between window and sim coordinates (invert y axis)
@@ -237,10 +238,11 @@ int main(){
             if (displayValues){
                 int char_size = 15;
                 int x_offset = 70;
+                int y_offset_multiplier = 2;
 
                 Text position_text;
                 position_text.setFillColor(posVectorColor);
-                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius()));
+                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius()));
                 position_text.setCharacterSize(char_size);
                 position_text.setFont(font);
 
@@ -254,7 +256,7 @@ int main(){
 
                 Text velocity_text;
                 velocity_text.setFillColor(velVectorColor);
-                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius() + char_size));
+                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size));
                 velocity_text.setCharacterSize(char_size);
                 velocity_text.setFont(font);
 
@@ -268,7 +270,7 @@ int main(){
 
                 Text acceleration_text;
                 acceleration_text.setFillColor(accVectorColor);
-                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius() + char_size * 2));
+                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size * 2));
                 acceleration_text.setCharacterSize(15);
                 acceleration_text.setFont(font);
 
@@ -321,24 +323,30 @@ int main(){
             if (drawTraces) {
                 TracePoint tracePoint; 
                 tracePoint.spawnIteration = renderIteration;
-                tracePoint.color = Color(particle->getColor()[0], particle->getColor()[1], particle->getColor()[2]);
+                tracePoint.color = particle->getColor();
                 tracePoint.position = Vector2f(convertCoords(particle->getPosition())[0], convertCoords(particle->getPosition())[1]);
                 traces.push_back(tracePoint);
                 
-                int index = 0;
-                for (TracePoint point : traces) {
+                auto it = traces.begin();
+                while (it != traces.end()) {
+                    TracePoint& point = *it;
                     CircleShape tracePointCircle;
 
                     tracePointCircle.setRadius(1);
-                    tracePointCircle.setFillColor(point.color);
+                    int alpha = (1.0 - (float(renderIteration - point.spawnIteration) / float(traceLifeTime))) * 255.0;
+                    if (alpha <= 1) {
+                        alpha = 0;
+                    }
+                    tracePointCircle.setFillColor(Color(point.color[0], point.color[1], point.color[2], alpha));
                     tracePointCircle.setPosition(point.position);
 
                     particleWindow.draw(tracePointCircle);
 
                     if (renderIteration - point.spawnIteration >= traceLifeTime) {
-                        traces.erase(traces.begin() + index);
+                        it = traces.erase(it);
+                    } else {
+                        ++it;
                     }
-                    index ++;
                 }
             }
         }

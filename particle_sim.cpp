@@ -63,6 +63,13 @@ void ParticleSim::_inelasticCollision(Particle * particle1, Particle * particle2
     vel_fx = (particle1_mass * vel1_ix + particle2_mass * vel2_ix) / (particle1_mass + particle2_mass);
     vel_fy = (particle1_mass * vel1_iy + particle2_mass * vel2_iy) / (particle1_mass + particle2_mass);
 
+    // get color of new particle by averaging RGB values
+    int r, g, b;
+    r = (float(particle1->getColor()[0]) + float(particle2->getColor()[0])) / 2.0;
+    g = (float(particle1->getColor()[1]) + float(particle2->getColor()[1])) / 2.0;
+    b = (float(particle1->getColor()[2]) + float(particle2->getColor()[2])) / 2.0;
+
+    particle1->setColor({r, g, b});
     particle1->setRadius(particle1->getRadius() + particle2->getRadius());
     particle1->setMass(particle1->getMass() + particle2->getMass());
     particle1->setVelocity({vel_fx, vel_fy});

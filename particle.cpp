@@ -84,6 +84,10 @@ std::vector<int> Particle::getColor() const {
     return this->_rgb;
 }
 
+void Particle::setColor(std::vector<int> color) {
+    _rgb = color;
+}
+
 std::vector<float> Particle::getVelocity() const {
     return this->_velocity;
 }

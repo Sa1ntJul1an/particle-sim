@@ -5,6 +5,7 @@
 #include <random>
 #include <cmath>
 #include <sstream>
+#include <random>
 
 #include "collisionModels.h"
 #include "particle.h"
@@ -35,6 +36,13 @@ struct testParticle{
     vector<float> acceleration = {0.0, 0.0};
 };
 
+struct TracePoint{
+    Vector2f position; 
+    vector<int> color;
+    int spawnIteration; 
+    bool markedForDelete = false;
+};
+
 // convert coordinate from between window and sim coordinates (invert y axis)
 vector<float> convertCoords(vector<float> coords){
     return {coords[0], HEIGHT - coords[1]};
@@ -51,9 +59,12 @@ int main(){
     float viscosityOfMedium = 100000000000;
 
     vector<Particle*> particles;
+    vector<TracePoint> traces;
 
     bool drawVelocityVectors = true;
     bool drawAccelerationVectors = true;
+    bool drawTraces = true;
+    int traceLifeTime = 120;
 
     float vectorScaleFactor = 60.0;
 
@@ -95,6 +106,10 @@ int main(){
     pausedIndicator.setCharacterSize(30);
     pausedIndicator.setString("Paused.");
 
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> rgb_uniform_dist(0, 255);
+
     Clock renderTime;
 
     vector<CircleShape> particle_shapes;
@@ -105,7 +120,8 @@ int main(){
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
 
     Particle * particle_pointer = nullptr;
-
+    
+    int renderIteration = 0;
     while(particleWindow.isOpen() && menuWindow.isOpen()){
 
         Time time = renderTime.getElapsedTime();
@@ -129,6 +145,15 @@ int main(){
                     particle_pointer = nullptr;
                 } else {
                     spawning_particle = true;
+                    // generate random particle color, ensuring it is not too dark
+                    int r, g, b;
+                    do {
+                        r = rgb_uniform_dist(gen);
+                        g = rgb_uniform_dist(gen);
+                        b = rgb_uniform_dist(gen);
+                    } while (r + b + g < 100);
+                
+                    particle.setColor({r, g, b});
                     particle_pointer = new Particle(particle);
                     particleSim.addParticle(particle_pointer);
                     particle_pointer->setPosition(convertCoords(mousePosition));
@@ -181,6 +206,7 @@ int main(){
 
         if (Keyboard::isKeyPressed(Keyboard::R)) {
             particleSim.reset();
+            traces.clear();
         }
 
         particleWindow.clear();
@@ -226,10 +252,11 @@ int main(){
             if (displayValues){
                 int char_size = 15;
                 int x_offset = 70;
+                int y_offset_multiplier = 2;
 
                 Text position_text;
                 position_text.setFillColor(posVectorColor);
-                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius()));
+                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius()));
                 position_text.setCharacterSize(char_size);
                 position_text.setFont(font);
 
@@ -243,7 +270,7 @@ int main(){
 
                 Text velocity_text;
                 velocity_text.setFillColor(velVectorColor);
-                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius() + char_size));
+                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size));
                 velocity_text.setCharacterSize(char_size);
                 velocity_text.setFont(font);
 
@@ -257,7 +284,7 @@ int main(){
 
                 Text acceleration_text;
                 acceleration_text.setFillColor(accVectorColor);
-                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + particle->getRadius() + char_size * 2));
+                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size * 2));
                 acceleration_text.setCharacterSize(15);
                 acceleration_text.setFont(font);
 
@@ -306,6 +333,36 @@ int main(){
 
                 particleWindow.draw(line, 2, sf::Lines);
             }
+
+            if (drawTraces) {
+                TracePoint tracePoint; 
+                tracePoint.spawnIteration = renderIteration;
+                tracePoint.color = particle->getColor();
+                tracePoint.position = Vector2f(convertCoords(particle->getPosition())[0], convertCoords(particle->getPosition())[1]);
+                traces.push_back(tracePoint);
+                
+                auto it = traces.begin();
+                while (it != traces.end()) {
+                    TracePoint& point = *it;
+                    CircleShape tracePointCircle;
+
+                    tracePointCircle.setRadius(1);
+                    int alpha = (1.0 - (float(renderIteration - point.spawnIteration) / float(traceLifeTime))) * 255.0;
+                    if (alpha <= 1) {
+                        alpha = 0;
+                    }
+                    tracePointCircle.setFillColor(Color(point.color[0], point.color[1], point.color[2], alpha));
+                    tracePointCircle.setPosition(point.position);
+
+                    particleWindow.draw(tracePointCircle);
+
+                    if (renderIteration - point.spawnIteration >= traceLifeTime) {
+                        it = traces.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
         }
 
         particleWindow.display();
@@ -313,6 +370,8 @@ int main(){
 
         menuWindow.clear();
         menuWindow.display();
+
+        renderIteration ++;
     }
 
     return 0;

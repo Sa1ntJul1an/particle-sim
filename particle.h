@@ -29,6 +29,8 @@ class Particle{
         
         std::vector<int> getColor() const;
 
+        void setColor(std::vector<int>);
+
         std::vector<float> getVelocity() const;
 
         void setVelocity(std::vector<float>);

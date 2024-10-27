@@ -5,6 +5,7 @@
 #include <random>
 #include <cmath>
 #include <sstream>
+#include <random>
 
 #include "collisionModels.h"
 #include "particle.h"
@@ -105,6 +106,10 @@ int main(){
     pausedIndicator.setCharacterSize(30);
     pausedIndicator.setString("Paused.");
 
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> rgb_uniform_dist(0, 255);
+
     Clock renderTime;
 
     vector<CircleShape> particle_shapes;
@@ -140,6 +145,15 @@ int main(){
                     particle_pointer = nullptr;
                 } else {
                     spawning_particle = true;
+                    // generate random particle color, ensuring it is not too dark
+                    int r, g, b;
+                    do {
+                        r = rgb_uniform_dist(gen);
+                        g = rgb_uniform_dist(gen);
+                        b = rgb_uniform_dist(gen);
+                    } while (r + b + g < 100);
+                
+                    particle.setColor({r, g, b});
                     particle_pointer = new Particle(particle);
                     particleSim.addParticle(particle_pointer);
                     particle_pointer->setPosition(convertCoords(mousePosition));

@@ -35,17 +35,6 @@ struct testParticle{
     vector<float> acceleration = {0.0, 0.0};
 };
 
-
-/* IDEAS
-
-    on collision with wall, reverse velocity in direction perpendicular to wall
-
-    for collision with other particles, we need to do some math 
-
-    use displayInfo bool to determine if trajectory vector shown + current vel and acc
-
-*/
-
 // convert coordinate from between window and sim coordinates (invert y axis)
 vector<float> convertCoords(vector<float> coords){
     return {coords[0], HEIGHT - coords[1]};

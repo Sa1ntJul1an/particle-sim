@@ -35,6 +35,12 @@ struct testParticle{
     vector<float> acceleration = {0.0, 0.0};
 };
 
+struct TracePoint{
+    Vector2f position; 
+    Color color;
+    int spawnIteration; 
+};
+
 // convert coordinate from between window and sim coordinates (invert y axis)
 vector<float> convertCoords(vector<float> coords){
     return {coords[0], HEIGHT - coords[1]};
@@ -51,9 +57,12 @@ int main(){
     float viscosityOfMedium = 100000000000;
 
     vector<Particle*> particles;
+    vector<TracePoint> traces;
 
     bool drawVelocityVectors = true;
     bool drawAccelerationVectors = true;
+    bool drawTraces = true;
+    int traceLifeTime = 120;
 
     float vectorScaleFactor = 60.0;
 
@@ -105,7 +114,8 @@ int main(){
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
 
     Particle * particle_pointer = nullptr;
-
+    
+    int renderIteration = 0;
     while(particleWindow.isOpen() && menuWindow.isOpen()){
 
         Time time = renderTime.getElapsedTime();
@@ -181,6 +191,7 @@ int main(){
 
         if (Keyboard::isKeyPressed(Keyboard::R)) {
             particleSim.reset();
+            traces.clear();
         }
 
         particleWindow.clear();
@@ -306,6 +317,30 @@ int main(){
 
                 particleWindow.draw(line, 2, sf::Lines);
             }
+
+            if (drawTraces) {
+                TracePoint tracePoint; 
+                tracePoint.spawnIteration = renderIteration;
+                tracePoint.color = Color(particle->getColor()[0], particle->getColor()[1], particle->getColor()[2]);
+                tracePoint.position = Vector2f(convertCoords(particle->getPosition())[0], convertCoords(particle->getPosition())[1]);
+                traces.push_back(tracePoint);
+                
+                int index = 0;
+                for (TracePoint point : traces) {
+                    CircleShape tracePointCircle;
+
+                    tracePointCircle.setRadius(1);
+                    tracePointCircle.setFillColor(point.color);
+                    tracePointCircle.setPosition(point.position);
+
+                    particleWindow.draw(tracePointCircle);
+
+                    if (renderIteration - point.spawnIteration >= traceLifeTime) {
+                        traces.erase(traces.begin() + index);
+                    }
+                    index ++;
+                }
+            }
         }
 
         particleWindow.display();
@@ -313,6 +348,8 @@ int main(){
 
         menuWindow.clear();
         menuWindow.display();
+
+        renderIteration ++;
     }
 
     return 0;

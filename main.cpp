@@ -121,6 +121,13 @@ int main(){
 
     Particle * particle_pointer = nullptr;
     
+    CircleShape particle_shape;
+    CircleShape tracePointCircle;
+    Text position_text;
+    Text velocity_text;
+    Text acceleration_text;
+    stringstream info_stream;
+
     int renderIteration = 0;
     while(particleWindow.isOpen() && menuWindow.isOpen()){
 
@@ -151,7 +158,7 @@ int main(){
                         r = rgb_uniform_dist(gen);
                         g = rgb_uniform_dist(gen);
                         b = rgb_uniform_dist(gen);
-                    } while (r + b + g < 100);
+                    } while (r + b + g < 200);
                 
                     particle.setColor({r, g, b});
                     particle_pointer = new Particle(particle);
@@ -234,7 +241,6 @@ int main(){
         }
 
         particles = particleSim.getParticles();
-        CircleShape particle_shape;
         for (int i = 0; i < particles.size(); i ++){
             Particle* particle = particles[i];
 
@@ -251,49 +257,50 @@ int main(){
 
             if (displayValues){
                 int char_size = 15;
-                int x_offset = 70;
                 int y_offset_multiplier = 2;
 
-                Text position_text;
+                info_stream.str(string());
+                info_stream.precision(2);
+
+
                 position_text.setFillColor(posVectorColor);
-                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius()));
                 position_text.setCharacterSize(char_size);
                 position_text.setFont(font);
 
-                stringstream position_stream;
-                position_stream.precision(2);
-                position_stream << fixed << "pos: (" <<  particle->getPosition()[0] << ", " <<  particle->getPosition()[1] << ")";
+                info_stream << fixed << "pos: (" <<  particle->getPosition()[0] << ", " <<  particle->getPosition()[1] << ")";
 
-                position_text.setString(position_stream.str());
+                position_text.setString(info_stream.str());
 
+                float x_offset = position_text.getLocalBounds().width / 2.0;
+                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius()));
                 particleWindow.draw(position_text);
 
-                Text velocity_text;
+
                 velocity_text.setFillColor(velVectorColor);
-                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size));
                 velocity_text.setCharacterSize(char_size);
                 velocity_text.setFont(font);
 
-                stringstream velocity_stream;
-                velocity_stream.precision(2);
-                velocity_stream << fixed << "vel: (" <<  particle->getVelocity()[0] << ", " <<  particle->getVelocity()[1] << ")";
+                info_stream.str(string());
+                info_stream << fixed << "vel: (" <<  particle->getVelocity()[0] << ", " <<  particle->getVelocity()[1] << ")";
 
-                velocity_text.setString(velocity_stream.str());
+                velocity_text.setString(info_stream.str());
 
+                x_offset = velocity_text.getLocalBounds().width / 2.0;
+                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size));
                 particleWindow.draw(velocity_text);
 
-                Text acceleration_text;
+
                 acceleration_text.setFillColor(accVectorColor);
-                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size * 2));
                 acceleration_text.setCharacterSize(15);
                 acceleration_text.setFont(font);
 
-                stringstream acceleration_stream;
-                acceleration_stream.precision(2);
-                acceleration_stream << fixed << "acc: (" << particle->getAcceleration()[0] << ", " << particle->getAcceleration()[1] << ")";
+                info_stream.str(string());
+                info_stream << fixed << "acc: (" << particle->getAcceleration()[0] << ", " << particle->getAcceleration()[1] << ")";
 
-                acceleration_text.setString(acceleration_stream.str());
+                acceleration_text.setString(info_stream.str());
 
+                x_offset = acceleration_text.getLocalBounds().width / 2.0;
+                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size * 2));
                 particleWindow.draw(acceleration_text);
             }
 
@@ -344,7 +351,6 @@ int main(){
                 auto it = traces.begin();
                 while (it != traces.end()) {
                     TracePoint& point = *it;
-                    CircleShape tracePointCircle;
 
                     tracePointCircle.setRadius(1);
                     int alpha = (1.0 - (float(renderIteration - point.spawnIteration) / float(traceLifeTime))) * 255.0;

@@ -151,7 +151,7 @@ int main(){
                         r = rgb_uniform_dist(gen);
                         g = rgb_uniform_dist(gen);
                         b = rgb_uniform_dist(gen);
-                    } while (r + b + g < 100);
+                    } while (r + b + g < 200);
                 
                     particle.setColor({r, g, b});
                     particle_pointer = new Particle(particle);
@@ -251,12 +251,10 @@ int main(){
 
             if (displayValues){
                 int char_size = 15;
-                int x_offset = 70;
                 int y_offset_multiplier = 2;
 
                 Text position_text;
                 position_text.setFillColor(posVectorColor);
-                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius()));
                 position_text.setCharacterSize(char_size);
                 position_text.setFont(font);
 
@@ -266,11 +264,13 @@ int main(){
 
                 position_text.setString(position_stream.str());
 
+                float x_offset = position_text.getLocalBounds().width / 2.0;
+                position_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius()));
                 particleWindow.draw(position_text);
+
 
                 Text velocity_text;
                 velocity_text.setFillColor(velVectorColor);
-                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size));
                 velocity_text.setCharacterSize(char_size);
                 velocity_text.setFont(font);
 
@@ -280,11 +280,13 @@ int main(){
 
                 velocity_text.setString(velocity_stream.str());
 
+                x_offset = velocity_text.getLocalBounds().width / 2.0;
+                velocity_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size));
                 particleWindow.draw(velocity_text);
+
 
                 Text acceleration_text;
                 acceleration_text.setFillColor(accVectorColor);
-                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size * 2));
                 acceleration_text.setCharacterSize(15);
                 acceleration_text.setFont(font);
 
@@ -294,6 +296,8 @@ int main(){
 
                 acceleration_text.setString(acceleration_stream.str());
 
+                x_offset = acceleration_text.getLocalBounds().width / 2.0;
+                acceleration_text.setPosition(Vector2f(particle_pos_window.x - x_offset, particle_pos_window.y + y_offset_multiplier * particle->getRadius() + char_size * 2));
                 particleWindow.draw(acceleration_text);
             }
 

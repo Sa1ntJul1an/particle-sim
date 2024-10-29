@@ -8,7 +8,13 @@ class ConfigurationMenu {
     public:
         ConfigurationMenu();
 
-        
+        void addTrackbar(void(*)(double));
+        void addToggle(void(*)(bool));
+
+    private:
+        ParticleSim * particleSim;
+
+        void _evaluateMenu();
 
 };
 

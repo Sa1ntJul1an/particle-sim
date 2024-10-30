@@ -7,6 +7,7 @@
 #include <sstream>
 #include <random>
 
+#include "configuration_menu.h"
 #include "collisionModels.h"
 #include "particle.h"
 #include "particle_sim.h"
@@ -75,6 +76,9 @@ int main(){
 
     CollisionModels collisionModel = CollisionModels::Inelastic;
 
+    // mouse position in config menu coordinates
+    Vector2i mousePositionMenu; 
+    // mouse position in particle menu coordinates
     vector<float> mousePosition = {-10.0, -10.0};
     vector<float> fixed_particle_position = {0.0, 0.0};
     bool spawning_particle = false;
@@ -115,6 +119,7 @@ int main(){
     vector<CircleShape> particle_shapes;
 
     ParticleSim particleSim(G, viscosityOfMedium, collisionModel, particles, WIDTH, HEIGHT, collideWithWalls, isFrictionEnabled);
+    ConfigurationMenu configurationWindow(menuWindow, font); 
 
     // spawn a particle with a fixed position at first, until mouse released then unfix position 
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
@@ -134,8 +139,8 @@ int main(){
         Time time = renderTime.getElapsedTime();
         float time_seconds = time.asSeconds();
 
-        // subtract height from y coord to invert y axis (bottom left of render window is now (0,0))
         mousePosition = {float(Mouse::getPosition(particleWindow).x), float(Mouse::getPosition(particleWindow).y)};
+        mousePositionMenu = Mouse::getPosition(menuWindow);
 
         // if mouse pressed within bounds of render window  
         if (Mouse::isButtonPressed(Mouse::Left) && mousePosition[0] < WIDTH && mousePosition[0] >= 0 && mousePosition[1] < HEIGHT && mousePosition[1] >= 0){
@@ -174,6 +179,12 @@ int main(){
                 setting_velocity = false;
             }
         }
+
+        // if mouse pressed within bounds of menu window 
+        if (Mouse::isButtonPressed(Mouse::Left) && mousePositionMenu.x < MENU_WIDTH && mousePositionMenu.x >= 0 && mousePositionMenu.y < MENU_HEIGHT && mousePositionMenu.y >= 0) {
+            configurationWindow.evaluateMouseClick(mousePositionMenu);
+        }
+
 
         // CLOSE WINDOWS IF X PRESSED
         // ==========================================================

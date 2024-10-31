@@ -5,13 +5,15 @@
 #include <string>
 #include <variant>
 #include <functional>
+#include <sstream>
 #include "particle_sim.h"
 
 
 class ConfigurationMenu {
     public:
-        ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font);
+        ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& font);
 
+        void addTrackbar();
         void addTrackbar(void(*)(float));
         void addToggle(void(*)(bool));
 
@@ -20,20 +22,23 @@ class ConfigurationMenu {
 
     private:
 
+        std::stringstream _stream;
+
         sf::Vector2f _trackbarSliderSize; 
+        sf::Font _font;
 
         // CONSTANTS
-        const sf::Color _textColor = sf::Color((200, 200, 200));
-        const float _textSize = 5.0;
+        const sf::Color _textColor = sf::Color(200, 200, 200);
+        const float _textSize = 20.0;
 
-        const float _elementHeight = 10;
-        const float _elementVerticalPadding = 2.0;
-        const sf::Color _elementBackgroundColor = sf::Color((100, 100, 100));
-        const sf::Color _trackbarButtonColor = sf::Color((150, 150, 150));
-        const sf::Color _trackbarSliderColor = sf::Color((20, 20, 20));
+        const float _elementHeight = 50;
+        const float _elementVerticalPadding = 5.0;
+        const sf::Color _elementBackgroundColor = sf::Color(80, 80, 80);
+        const sf::Color _trackbarButtonColor = sf::Color(200, 200, 200);
+        const sf::Color _trackbarSliderColor = sf::Color::Black;
         const sf::Vector2f _trackbarButtonSize = sf::Vector2f(10, 20);
-        const float _trackbarSliderHeight = 2.0;
-        const float _trackbarSliderHorizontalPadding = 2.0;
+        const float _trackbarSliderHeight = 5.0;
+        const float _trackbarSliderHorizontalPadding = 10.0;
 
         // SFML objects
         sf::RectangleShape _uiBackgroundRectangle;
@@ -62,7 +67,7 @@ class ConfigurationMenu {
 
         // helper functions 
         void _drawToggle(std::string, float, bool);
-        void _drawTrackbar(std::string, float, float);
+        void _drawTrackbar(std::string, float, float, float);
         void _drawUIElement(UIElement uiElement);
 };
 

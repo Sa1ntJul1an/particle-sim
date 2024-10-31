@@ -119,7 +119,8 @@ int main(){
     vector<CircleShape> particle_shapes;
 
     ParticleSim particleSim(G, viscosityOfMedium, collisionModel, particles, WIDTH, HEIGHT, collideWithWalls, isFrictionEnabled);
-    ConfigurationMenu configurationWindow(menuWindow, font); 
+    ConfigurationMenu configurationMenu(menuWindow, font); 
+    configurationMenu.addTrackbar();
 
     // spawn a particle with a fixed position at first, until mouse released then unfix position 
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
@@ -182,7 +183,7 @@ int main(){
 
         // if mouse pressed within bounds of menu window 
         if (Mouse::isButtonPressed(Mouse::Left) && mousePositionMenu.x < MENU_WIDTH && mousePositionMenu.x >= 0 && mousePositionMenu.y < MENU_HEIGHT && mousePositionMenu.y >= 0) {
-            configurationWindow.evaluateMouseClick(mousePositionMenu);
+            configurationMenu.evaluateMouseClick(mousePositionMenu);
         }
 
 
@@ -228,6 +229,8 @@ int main(){
         }
 
         particleWindow.clear();
+        menuWindow.clear(Color(100, 100, 100));
+
 
         if (sim_running) {
             particleSim.updateParticles(time_seconds);
@@ -382,11 +385,12 @@ int main(){
             }
         }
 
+        configurationMenu.drawUI();
+        menuWindow.display();
+
         particleWindow.display();
         // ==========================================================
 
-        menuWindow.clear();
-        menuWindow.display();
 
         renderIteration ++;
     }

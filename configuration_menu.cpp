@@ -3,7 +3,9 @@
 #include <iostream>
 
 
-ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font font) : _renderWindow(renderWindow) {
+ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& font) : _renderWindow(renderWindow), _font(font) {
+
+    _stream.precision(2);
 
     _labelText.setFont(font);
     _labelText.setFillColor(_textColor);
@@ -12,7 +14,7 @@ ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font fo
     _windowWidth = _renderWindow.getSize().x;
     _windowHeight = _renderWindow.getSize().y;
 
-    _trackbarSliderSize = sf::Vector2f(_windowWidth - 2 * _trackbarSliderHorizontalPadding, _trackbarSliderHeight);
+    _trackbarSliderSize = sf::Vector2f((_windowWidth / 2.0) - (2 * _trackbarSliderHorizontalPadding), _trackbarSliderHeight);
 
     // initialize SFML shapes for UI elements 
     _uiBackgroundRectangle.setFillColor(_elementBackgroundColor);
@@ -23,6 +25,18 @@ ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font fo
 
     _trackbarSliderRectangle.setFillColor(_trackbarSliderColor);
     _trackbarSliderRectangle.setSize(_trackbarSliderSize);
+}
+
+void ConfigurationMenu::addTrackbar() {
+    UIElement element; 
+    element.minVal = 10; 
+    element.maxVal = 100;
+    float value = 20.0;
+    element.value = value;
+    element.label = "testlabel";
+    element.yTop = 20;
+
+    _uiElements.push_back(element);
 }
 
 void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {
@@ -39,14 +53,26 @@ void ConfigurationMenu::_drawToggle(std::string label, float yTop, bool value) {
     
 }
 
-void ConfigurationMenu::_drawTrackbar(std::string label, float yTop, float trackbarPercentage) {
+void ConfigurationMenu::_drawTrackbar(std::string label, float yTop, float trackbarPercentage, float value) {
     _uiBackgroundRectangle.setPosition(sf::Vector2f(0, yTop));
     _trackbarSliderRectangle.setPosition(sf::Vector2f(_trackbarSliderHorizontalPadding, yTop + (_elementHeight / 2.0) - (_trackbarSliderHeight / 2.0)));
-    _trackbarButtonRectangle.setPosition(sf::Vector2f());
+    float trackbarButtonPositionX = trackbarPercentage * _trackbarSliderRectangle.getSize().x + _trackbarSliderHorizontalPadding - _trackbarButtonSize.x / 2.0;
+    float trackbarButtonPositionY = _trackbarSliderRectangle.getPosition().y - _trackbarButtonSize.y / 2.0 + _trackbarSliderSize.y / 2.0;
+    _trackbarButtonRectangle.setPosition(sf::Vector2f(trackbarButtonPositionX, trackbarButtonPositionY));
+
+    _stream.str(std::string());
+    _stream << label << ": " << value;
+
+    _labelText.setString(_stream.str());
+    _labelText.setCharacterSize(_textSize);
+    _labelText.setPosition(_trackbarSliderSize.x + 2.0 * _trackbarSliderHorizontalPadding, yTop + (_elementHeight -_textSize) / 2.0);
+    _labelText.setFillColor(_textColor);
 
     _renderWindow.draw(_uiBackgroundRectangle);
     _renderWindow.draw(_trackbarSliderRectangle);
     _renderWindow.draw(_trackbarButtonRectangle);
+
+    _renderWindow.draw(_labelText);
 }
 
 void ConfigurationMenu::_drawUIElement(UIElement uiElement) {
@@ -58,6 +84,6 @@ void ConfigurationMenu::_drawUIElement(UIElement uiElement) {
         float value = std::get<float>(uiElement.value);
 
         float trackbarPercentage = (value - uiElement.minVal) / (uiElement.maxVal - uiElement.minVal);
-        _drawTrackbar(uiElement.label, uiElement.yTop, trackbarPercentage);
+        _drawTrackbar(uiElement.label, uiElement.yTop, trackbarPercentage, value);
     }
 }

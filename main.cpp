@@ -74,7 +74,7 @@ int main(){
     bool collideWithWalls = true;
     bool isFrictionEnabled = true;
 
-    CollisionModels collisionModel = CollisionModels::Inelastic;
+    CollisionModels collisionModel = CollisionModels::Elastic;
 
     // mouse position in config menu coordinates
     Vector2i mousePositionMenu; 
@@ -143,8 +143,8 @@ int main(){
         mousePosition = {float(Mouse::getPosition(particleWindow).x), float(Mouse::getPosition(particleWindow).y)};
         mousePositionMenu = Mouse::getPosition(menuWindow);
 
-        // if mouse pressed within bounds of render window  
-        if (Mouse::isButtonPressed(Mouse::Left) && mousePosition[0] < WIDTH && mousePosition[0] >= 0 && mousePosition[1] < HEIGHT && mousePosition[1] >= 0){
+        // if mouse pressed within bounds of render window and render window has OS focus
+        if (Mouse::isButtonPressed(Mouse::Left) && mousePosition[0] < WIDTH && mousePosition[0] >= 0 && mousePosition[1] < HEIGHT && mousePosition[1] >= 0 && particleWindow.hasFocus()){
 
             if (!mouse_held) {
                 mouse_held = true;
@@ -181,8 +181,8 @@ int main(){
             }
         }
 
-        // if mouse pressed within bounds of menu window 
-        if (Mouse::isButtonPressed(Mouse::Left) && mousePositionMenu.x < MENU_WIDTH && mousePositionMenu.x >= 0 && mousePositionMenu.y < MENU_HEIGHT && mousePositionMenu.y >= 0) {
+        // if mouse pressed within bounds of menu window and menu window has OS focus
+        if (Mouse::isButtonPressed(Mouse::Left) && mousePositionMenu.x < MENU_WIDTH && mousePositionMenu.x >= 0 && mousePositionMenu.y < MENU_HEIGHT && mousePositionMenu.y >= 0 && menuWindow.hasFocus()) {
             configurationMenu.evaluateMouseClick(mousePositionMenu);
         }
 

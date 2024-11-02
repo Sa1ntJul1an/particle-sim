@@ -6,6 +6,7 @@
 ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& font) : _renderWindow(renderWindow), _font(font) {
 
     _stream.precision(2);
+    _stream << std::fixed;
 
     _labelText.setFont(font);
     _labelText.setFillColor(_textColor);
@@ -28,23 +29,42 @@ ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& f
 }
 
 void ConfigurationMenu::addTrackbar() {
-    UIElement element; 
-    element.minVal = 10; 
-    element.maxVal = 100;
+    UIElement * element = new UIElement; 
+    element->minVal = 10; 
+    element->maxVal = 100;
     float value = 20.0;
-    element.value = value;
-    element.label = "testlabel";
-    element.yTop = 20;
+    element->value = value;
+    element->label = "testlabel";
+    element->yTop = 20;
+
+    UIElement * elementPointer = new UIElement; 
 
     _uiElements.push_back(element);
 }
 
 void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {
-    std::cout << "mouse click in menu at y = " << mousePosition.y << std::endl;
+    // std::cout << "mouse click in menu at y = " << mousePosition.y << std::endl;
+    for (UIElement* element : _uiElements) {
+        // check if mouse click is within UI element
+        if (mousePosition.y > element->yTop && mousePosition.y < _elementHeight + element->yTop) {
+
+            float activationPercent = (mousePosition.x - _trackbarSliderHorizontalPadding) / (_trackbarSliderSize.x - _trackbarSliderHorizontalPadding);
+
+            if (activationPercent > 1.0) { 
+                activationPercent = 1.0;
+            } else if (activationPercent < 0.0) {
+                activationPercent = 0.0;
+            }
+
+            float elementValue = activationPercent * (element->maxVal - element->minVal) + element->minVal;
+
+            element->value = elementValue;
+        }
+    }
 }
 
 void ConfigurationMenu::drawUI() {
-    for (UIElement element : _uiElements) {
+    for (UIElement* element : _uiElements) {
         _drawUIElement(element);
     }
 }
@@ -75,15 +95,21 @@ void ConfigurationMenu::_drawTrackbar(std::string label, float yTop, float track
     _renderWindow.draw(_labelText);
 }
 
-void ConfigurationMenu::_drawUIElement(UIElement uiElement) {
-    if (std::holds_alternative<bool>(uiElement.value)) {  // ui element is bool (toggle)
-        bool value = std::get<bool>(uiElement.value);
+void ConfigurationMenu::_drawUIElement(UIElement* uiElement) {
+    if (std::holds_alternative<bool>(uiElement->value)) {  // ui element is bool (toggle)
+        bool value = std::get<bool>(uiElement->value);
 
-        _drawToggle(uiElement.label, uiElement.yTop, value);
-    } else if (std::holds_alternative<float>(uiElement.value)) { // ui element is float (trackbar)
-        float value = std::get<float>(uiElement.value);
+        _drawToggle(uiElement->label, uiElement->yTop, value);
+    } else if (std::holds_alternative<float>(uiElement->value)) { // ui element is float (trackbar)
+        float value = std::get<float>(uiElement->value);
 
-        float trackbarPercentage = (value - uiElement.minVal) / (uiElement.maxVal - uiElement.minVal);
-        _drawTrackbar(uiElement.label, uiElement.yTop, trackbarPercentage, value);
+        float trackbarPercentage = (value - uiElement->minVal) / (uiElement->maxVal - uiElement->minVal);
+        _drawTrackbar(uiElement->label, uiElement->yTop, trackbarPercentage, value);
+    }
+}
+
+ConfigurationMenu::~ConfigurationMenu(){
+    for (UIElement* element : _uiElements) {
+        delete element;
     }
 }

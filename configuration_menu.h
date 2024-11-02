@@ -13,6 +13,8 @@ class ConfigurationMenu {
     public:
         ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& font);
 
+        ~ConfigurationMenu();
+
         void addTrackbar();
         void addTrackbar(void(*)(float));
         void addToggle(void(*)(bool));
@@ -29,7 +31,7 @@ class ConfigurationMenu {
 
         // CONSTANTS
         const sf::Color _textColor = sf::Color(200, 200, 200);
-        const float _textSize = 20.0;
+        const float _textSize = 15.0;
 
         const float _elementHeight = 50;
         const float _elementVerticalPadding = 5.0;
@@ -63,12 +65,12 @@ class ConfigurationMenu {
             float maxVal;
         };
 
-        std::vector<UIElement> _uiElements;
+        std::vector<UIElement*> _uiElements;
 
         // helper functions 
         void _drawToggle(std::string, float, bool);
         void _drawTrackbar(std::string, float, float, float);
-        void _drawUIElement(UIElement uiElement);
+        void _drawUIElement(UIElement* uiElement);
 };
 
 

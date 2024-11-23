@@ -37,9 +37,9 @@ struct testParticle{
 };
 
 struct TracePoint{
-    Vector2f position; 
+    Vector2f position;
     vector<int> color;
-    int spawnIteration; 
+    int spawnIteration;
     bool markedForDelete = false;
 };
 
@@ -87,7 +87,7 @@ int main(){
     fontIn.open("slkscr.ttf");
     font.loadFromStream(fontIn);
 
-    // RENDER WINDOWS 
+    // RENDER WINDOWS
     // =======================================================================
     RenderWindow particleWindow(VideoMode(WIDTH, HEIGHT), "Particle Sim");
     particleWindow.setFramerateLimit(60);
@@ -99,7 +99,7 @@ int main(){
     bool space_pressed = false;
     bool mouse_held = false;
 
-    Text pausedIndicator; 
+    Text pausedIndicator;
     pausedIndicator.setFont(font);
     pausedIndicator.setFillColor(Color::Red);
     pausedIndicator.setPosition(Vector2f(5, 5));
@@ -116,11 +116,11 @@ int main(){
 
     ParticleSim particleSim(G, viscosityOfMedium, collisionModel, particles, WIDTH, HEIGHT, collideWithWalls, isFrictionEnabled);
 
-    // spawn a particle with a fixed position at first, until mouse released then unfix position 
+    // spawn a particle with a fixed position at first, until mouse released then unfix position
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
 
     Particle * particle_pointer = nullptr;
-    
+
     CircleShape particle_shape;
     CircleShape tracePointCircle;
     Text position_text;
@@ -137,12 +137,12 @@ int main(){
         // subtract height from y coord to invert y axis (bottom left of render window is now (0,0))
         mousePosition = {float(Mouse::getPosition(particleWindow).x), float(Mouse::getPosition(particleWindow).y)};
 
-        // if mouse pressed within bounds of render window  
+        // if mouse pressed within bounds of render window
         if (Mouse::isButtonPressed(Mouse::Left) && mousePosition[0] < WIDTH && mousePosition[0] >= 0 && mousePosition[1] < HEIGHT && mousePosition[1] >= 0){
 
             if (!mouse_held) {
                 mouse_held = true;
-                
+
                 if (spawning_particle) {
                     spawning_particle = false;
                     setting_velocity = true;
@@ -159,7 +159,7 @@ int main(){
                         g = rgb_uniform_dist(gen);
                         b = rgb_uniform_dist(gen);
                     } while (r + b + g < 200);
-                
+
                     particle.setColor({r, g, b});
                     particle_pointer = new Particle(particle);
                     particleSim.addParticle(particle_pointer);
@@ -181,7 +181,7 @@ int main(){
         Event menuWindowEvent;
 
         while(particleWindow.pollEvent(particleWindowEvent)){
-            
+
             if(particleWindowEvent.type == Event::Closed){
                 particleWindow.close();
                 menuWindow.close();
@@ -189,7 +189,7 @@ int main(){
         }
 
         while(menuWindow.pollEvent(menuWindowEvent)){
-            
+
             if(menuWindowEvent.type == Event::Closed){
                 particleWindow.close();
                 menuWindow.close();
@@ -305,14 +305,14 @@ int main(){
             }
 
             if (drawVelocityVectors){
-                
+
                 Vector2f velocity_vector;
 
                 velocity_vector.x = particle_pos_sim.x + particle->getVelocity()[0] * vectorScaleFactor;
                 velocity_vector.y = particle_pos_sim.y + particle->getVelocity()[1] * vectorScaleFactor;
 
-                velocity_vector = convertCoords(velocity_vector);                
-                
+                velocity_vector = convertCoords(velocity_vector);
+
                 Vertex line[] =
                 {
                     Vertex(convertCoords(particle_pos_sim), velVectorColor),
@@ -322,9 +322,9 @@ int main(){
                 particleWindow.draw(line, 2, sf::Lines);
 
             }
-            
+
             if (drawAccelerationVectors){
-                
+
                 Vector2f acceleration_vector;
 
                 acceleration_vector.x = particle_pos_sim.x + particle->getAcceleration()[0] * vectorScaleFactor;
@@ -342,12 +342,12 @@ int main(){
             }
 
             if (drawTraces) {
-                TracePoint tracePoint; 
+                TracePoint tracePoint;
                 tracePoint.spawnIteration = renderIteration;
                 tracePoint.color = particle->getColor();
                 tracePoint.position = Vector2f(convertCoords(particle->getPosition())[0], convertCoords(particle->getPosition())[1]);
                 traces.push_back(tracePoint);
-                
+
                 auto it = traces.begin();
                 while (it != traces.end()) {
                     TracePoint& point = *it;

@@ -5,6 +5,8 @@
 #include <cmath>
 #include <sstream>
 #include <random>
+#include <variant>
+#include <functional>
 
 #include "configuration_menu.h"
 #include "collisionModels.h"
@@ -54,8 +56,17 @@ Vector2f convertCoords(Vector2f coords){
 }
 
 
+void testTrackbarCallback(float value) {
+  cout << value << "\n";
+}
+
+
 int main(){
 
+    using callbackVariant = variant<function<void(float)>, function<void(bool)>>;
+    function<void(float)> f = testTrackbarCallback;
+    callbackVariant trackbarCallbackVariant = f;
+    
     float G = 0.0000000000667;
     long viscosityOfMedium = 100000000000;
 
@@ -120,8 +131,8 @@ int main(){
 
     ParticleSim particleSim(G, viscosityOfMedium, collisionModel, particles, WIDTH, HEIGHT, collideWithWalls, isFrictionEnabled);
     ConfigurationMenu configurationMenu(menuWindow, font); 
-    configurationMenu.addUIElement(uiElements::Trackbar, "testlabel1", 10.0, 100.0, 20.0);
-    configurationMenu.addUIElement(uiElements::Trackbar, "testlabel2", 10.0, 100.0, 20.0);
+    configurationMenu.addUIElement(uiElements::Trackbar, trackbarCallbackVariant, "testlabel1", 10.0, 100.0, 20.0);
+    configurationMenu.addUIElement(uiElements::Trackbar, trackbarCallbackVariant, "testlabel2", 5.0, 10.0, 7.0);
 
     // spawn a particle with a fixed position at first, until mouse released then unfix position 
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);

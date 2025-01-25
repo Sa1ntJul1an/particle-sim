@@ -16,7 +16,7 @@ class ConfigurationMenu {
 
         ~ConfigurationMenu();
 
-        void addUIElement(uiElements, std::string, float, float, float);
+        void addUIElement(uiElements, std::variant<std::function<void(float)>, std::function<void(bool)>>, std::string, float, float, float);
 
         void evaluateMouseClick(sf::Vector2i);
         void drawUI();

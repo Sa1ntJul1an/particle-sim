@@ -1,6 +1,8 @@
 #include "configuration_menu.h"
 #include <SFML/Graphics.hpp>
+#include <functional>
 #include <iostream>
+#include <variant>
 
 #include "uiElements.h"
 
@@ -30,7 +32,7 @@ ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& f
     _trackbarSliderRectangle.setSize(_trackbarSliderSize);
 }
 
-void ConfigurationMenu::addUIElement(uiElements elementType, std::string label, float minVal, float maxVal, float initValue) {
+void ConfigurationMenu::addUIElement(uiElements elementType, std::variant<std::function<void(float)>, std::function<void(bool)>> callback, std::string label, float minVal, float maxVal, float initValue) {
     UIElement * element = new UIElement; 
 
     element->elementType = elementType;
@@ -41,6 +43,12 @@ void ConfigurationMenu::addUIElement(uiElements elementType, std::string label, 
 
     element->yTop = _getBottomUIElementY() + _elementVerticalPadding;
     element->height = _defaultElementHeight;
+
+    if (std::holds_alternative<std::function<void(bool)>>(callback)) {
+      element->toggleCallback = std::get<std::function<void(bool)>>(callback);
+    } else if (std::holds_alternative<std::function<void(float)>>(callback)) {
+      element->trackbarCallback = std::get<std::function<void(float)>>(callback);
+    }
 
     _uiElements.push_back(element);
 }
@@ -77,6 +85,8 @@ void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {
             float elementValue = activationPercent * (element->maxVal - element->minVal) + element->minVal;
 
             element->value = elementValue;
+
+            element->trackbarCallback(elementValue);
         }
     }
 }

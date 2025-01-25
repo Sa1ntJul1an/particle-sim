@@ -58,7 +58,7 @@ Vector2f convertCoords(Vector2f coords){
 int main(){
 
     float G = 0.0000000000667;
-    float viscosityOfMedium = 100000000000;
+    long viscosityOfMedium = 100000000000;
 
     vector<Particle*> particles;
     vector<TracePoint> traces;

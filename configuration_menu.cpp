@@ -39,10 +39,25 @@ void ConfigurationMenu::addUIElement(uiElements elementType, std::string label, 
     element->label = label;
     element->value = initValue;
 
-    element->yTop = 20;
+    element->yTop = _getBottomUIElementY() + _elementVerticalPadding;
     element->height = _defaultElementHeight;
 
     _uiElements.push_back(element);
+}
+
+int ConfigurationMenu::_getBottomUIElementY() {
+  int maxY = 0;
+
+  if (_uiElements.size() > 0) {
+    for (UIElement * element : _uiElements) {
+      int currentY = element->yTop + element->height;
+      if (currentY > maxY) {
+        maxY = currentY;
+      }
+    }
+  }
+  
+  return maxY;
 }
 
 void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {

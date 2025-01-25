@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-#include <fstream>
 #include <iostream>
 #include <vector>
 #include <random>
@@ -121,7 +120,8 @@ int main(){
 
     ParticleSim particleSim(G, viscosityOfMedium, collisionModel, particles, WIDTH, HEIGHT, collideWithWalls, isFrictionEnabled);
     ConfigurationMenu configurationMenu(menuWindow, font); 
-    configurationMenu.addUIElement(uiElements::Trackbar, "testlabel", 10.0, 100.0, 20.0);
+    configurationMenu.addUIElement(uiElements::Trackbar, "testlabel1", 10.0, 100.0, 20.0);
+    configurationMenu.addUIElement(uiElements::Trackbar, "testlabel2", 10.0, 100.0, 20.0);
 
     // spawn a particle with a fixed position at first, until mouse released then unfix position 
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);

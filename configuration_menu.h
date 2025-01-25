@@ -83,6 +83,7 @@ class ConfigurationMenu {
         void _drawToggle(std::string, float, bool);
         void _drawTrackbar(std::string, float, float, float, float);
         void _drawUIElement(UIElement* uiElement);
+        int _getBottomUIElementY();
 };
 
 

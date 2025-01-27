@@ -32,7 +32,7 @@ ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& f
     _trackbarSliderRectangle.setSize(_trackbarSliderSize);
 }
 
-void ConfigurationMenu::addUIElement(uiElements elementType, std::variant<std::function<void(float)>, std::function<void(bool)>> callback, std::string label, float minVal, float maxVal, float initValue) {
+void ConfigurationMenu::addUIElement(uiElements elementType, std::variant<std::function<void(double)>, std::function<void(bool)>> callback, std::string label, double minVal, double maxVal, double initValue) {
     UIElement * element = new UIElement; 
 
     element->elementType = elementType;
@@ -46,8 +46,8 @@ void ConfigurationMenu::addUIElement(uiElements elementType, std::variant<std::f
 
     if (std::holds_alternative<std::function<void(bool)>>(callback)) {
       element->toggleCallback = std::get<std::function<void(bool)>>(callback);
-    } else if (std::holds_alternative<std::function<void(float)>>(callback)) {
-      element->trackbarCallback = std::get<std::function<void(float)>>(callback);
+    } else if (std::holds_alternative<std::function<void(double)>>(callback)) {
+      element->trackbarCallback = std::get<std::function<void(double)>>(callback);
     }
 
     _uiElements.push_back(element);
@@ -82,7 +82,7 @@ void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {
                 activationPercent = 0.0;
             }
 
-            float elementValue = activationPercent * (element->maxVal - element->minVal) + element->minVal;
+            double elementValue = activationPercent * (element->maxVal - element->minVal) + element->minVal;
 
             element->value = elementValue;
 
@@ -101,18 +101,23 @@ void ConfigurationMenu::_drawToggle(std::string label, float yTop, bool value) {
     
 }
 
-void ConfigurationMenu::_drawTrackbar(std::string label, float yTop, float elementHeight, float trackbarPercentage, float value) {
+void ConfigurationMenu::_drawTrackbar(std::string label, float yTop, float elementHeight, float trackbarPercentage, double value) {
     _trackbarSliderRectangle.setPosition(sf::Vector2f(_trackbarSliderHorizontalPadding, yTop + (elementHeight / 2.0) - (_trackbarSliderHeight / 2.0)));
     float trackbarButtonPositionX = trackbarPercentage * _trackbarSliderRectangle.getSize().x + _trackbarSliderHorizontalPadding - _trackbarButtonSize.x / 2.0;
     float trackbarButtonPositionY = _trackbarSliderRectangle.getPosition().y - _trackbarButtonSize.y / 2.0 + _trackbarSliderSize.y / 2.0;
     _trackbarButtonRectangle.setPosition(sf::Vector2f(trackbarButtonPositionX, trackbarButtonPositionY));
 
     _stream.str(std::string());
-    _stream << label << ": " << value;
+
+    if (value != 0.0 && (value < 0.01 || value > 1000.0)) {     // format number with scientific notation at extremes 
+      _stream << label << ": " << std::scientific << value;
+    } else {
+      _stream << label << ": " << std::defaultfloat << value;
+    }
 
     _labelText.setString(_stream.str());
     _labelText.setCharacterSize(_textSize);
-    _labelText.setPosition(_trackbarSliderSize.x + 2.0 * _trackbarSliderHorizontalPadding, yTop + (elementHeight -_textSize) / 2.0);
+    _labelText.setPosition(_trackbarSliderSize.x + 2.0 * _trackbarSliderHorizontalPadding, yTop + (elementHeight - _labelText.getGlobalBounds().height) / 2.0);
     _labelText.setFillColor(_textColor);
 
     _renderWindow.draw(_trackbarSliderRectangle);
@@ -130,7 +135,7 @@ void ConfigurationMenu::_drawUIElement(UIElement* uiElement) {
 
     switch (elementType) {
         case uiElements::Trackbar: { // ui element is float (trackbar)
-            float value = std::get<float>(uiElement->value);
+            double value = std::get<double>(uiElement->value);
             float trackbarPercentage = (value - uiElement->minVal) / (uiElement->maxVal - uiElement->minVal);
             _drawTrackbar(uiElement->label, uiElement->yTop, uiElement->height, trackbarPercentage, value);
             break;

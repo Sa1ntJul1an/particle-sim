@@ -16,7 +16,7 @@ class ConfigurationMenu {
 
         ~ConfigurationMenu();
 
-        void addUIElement(uiElements, std::variant<std::function<void(float)>, std::function<void(bool)>>, std::string, float, float, float);
+        void addUIElement(uiElements, std::variant<std::function<void(double)>, std::function<void(bool)>>, std::string, double, double, double);
 
         void evaluateMouseClick(sf::Vector2i);
         void drawUI();
@@ -70,18 +70,18 @@ class ConfigurationMenu {
             std::string label;
             float yTop;
             float height;
-            std::variant<float, bool> value;
-            std::function<void(float)> trackbarCallback;
+            std::variant<double, bool> value;
+            std::function<void(double)> trackbarCallback;
             std::function<void(bool)> toggleCallback;
-            float minVal;
-            float maxVal;
+            double minVal;
+            double maxVal;
         };
 
         std::vector<UIElement*> _uiElements;
 
         // helper functions 
         void _drawToggle(std::string, float, bool);
-        void _drawTrackbar(std::string, float, float, float, float);
+        void _drawTrackbar(std::string, float, float, float, double);
         void _drawUIElement(UIElement* uiElement);
         int _getBottomUIElementY();
 };

@@ -16,13 +16,21 @@ class ParticleSim {
 
         void updateParticles(float);
 
+        static void setViscosity(const double);
+
+        const double getViscosity();
+
+        static void setG(const double);
+
+        const double getG();
+
         std::vector<Particle*> getParticles() const;
 
         void reset();
 
     private:
-        float _G;
-        float _viscosityOfMedmium;
+        static double _G;
+        static double _viscosityOfMedmium;
 
         int _width;
         int _height;

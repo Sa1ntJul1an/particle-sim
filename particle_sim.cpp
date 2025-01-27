@@ -1,7 +1,6 @@
 #include "particle_sim.h"
 #include <cmath>
 #include <vector>
-#include <iostream>
 #include <set>
 
 ParticleSim::ParticleSim(float G, float viscosityOfMedium, CollisionModels collisionModel, std::vector<Particle*> particles, int width, int height, bool collideWithWalls, bool isFrictionEnabled){
@@ -168,6 +167,22 @@ void ParticleSim::updateParticles(float current_time) {
     }
 }
 
+void ParticleSim::setViscosity(const double viscosity) {
+  _viscosityOfMedmium = viscosity;
+}
+
+const double ParticleSim::getViscosity() {
+  return _viscosityOfMedmium;
+}
+
+void ParticleSim::setG(const double G) {
+  _G = G;
+}
+
+const double ParticleSim::getG() {
+  return _G;
+}
+
 std::vector<Particle*> ParticleSim::getParticles() const {
     return this->_particles;
 }
@@ -199,6 +214,9 @@ float ParticleSim::_yComponent(const float value, const float thetaRad) {
 void ParticleSim::reset() {
     _particles.clear();
 }
+
+double ParticleSim::_G = 0.0;
+double ParticleSim::_viscosityOfMedmium = 0.0;
 
 ParticleSim::~ParticleSim(){
     for (Particle* particle : _particles) {

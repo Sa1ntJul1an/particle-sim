@@ -1,5 +1,6 @@
 #include "configuration_menu.h"
 #include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <functional>
 #include <iostream>
 #include <variant>
@@ -97,8 +98,10 @@ void ConfigurationMenu::drawUI() {
     }
 }
 
-void ConfigurationMenu::_drawToggle(std::string label, float yTop, bool value) {
-    
+void ConfigurationMenu::_drawToggle(std::string label, float yTop, float elementHeight, bool value) {
+    _toggleBoxOutlineRectangle.setPosition(sf::Vector2f(_toggleBoxRectangleHorizontalPadding, yTop + (elementHeight / 2.0) - (_toggleBoxSize.y / 2.0)));
+    float toggleBoxOutlineThickness = (_toggleOutlineSize.x - _toggleBoxSize.x) / 2.0;
+    _toggleBoxOutlineRectangle.setPosition(sf::Vector2f(_toggleBoxRectangleHorizontalPadding + toggleBoxOutlineThickness, yTop + (elementHeight / 2.0) - (_toggleBoxSize.y / 2.0)));
 }
 
 void ConfigurationMenu::_drawTrackbar(std::string label, float yTop, float elementHeight, float trackbarPercentage, double value) {
@@ -141,7 +144,7 @@ void ConfigurationMenu::_drawUIElement(UIElement* uiElement) {
             break;
         }
         case uiElements::Toggle: {  // ui element is bool (toggle)
-            _drawToggle(uiElement->label, uiElement->yTop, std::get<bool>(uiElement->value));
+            _drawToggle(uiElement->label, uiElement->yTop, uiElement->height, std::get<bool>(uiElement->value));
             break;
         }
         case uiElements::ParticleSpawn: {

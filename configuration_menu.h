@@ -49,6 +49,7 @@ class ConfigurationMenu {
         const sf::Color _toggleBoxUnselectedColor = sf::Color::Black;
         const sf::Vector2f _toggleOutlineSize = sf::Vector2f(25, 25);
         const sf::Vector2f _toggleBoxSize = sf::Vector2f(20, 20);
+        const float _toggleBoxRectangleHorizontalPadding = 20.0;
 
         // SFML objects
         sf::RectangleShape _uiBackgroundRectangle;
@@ -80,7 +81,7 @@ class ConfigurationMenu {
         std::vector<UIElement*> _uiElements;
 
         // helper functions 
-        void _drawToggle(std::string, float, bool);
+        void _drawToggle(std::string, float, float, bool);
         void _drawTrackbar(std::string, float, float, float, double);
         void _drawUIElement(UIElement* uiElement);
         int _getBottomUIElementY();

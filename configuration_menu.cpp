@@ -3,6 +3,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <functional>
 #include <iostream>
+#include <string>
 #include <variant>
 
 #include "uiElements.h"
@@ -31,6 +32,10 @@ ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& f
 
     _trackbarSliderRectangle.setFillColor(_trackbarSliderColor);
     _trackbarSliderRectangle.setSize(_trackbarSliderSize);
+
+    _toggleBoxOutlineRectangle.setFillColor(_toggleBoxOutlineColor);
+    _toggleBoxOutlineRectangle.setSize(_toggleOutlineSize);
+    _toggleBoxRectangle.setSize(_toggleBoxSize);
 }
 
 void ConfigurationMenu::addUIElement(uiElements elementType, std::variant<std::function<void(double)>, std::function<void(bool)>> callback, std::string label, double minVal, double maxVal, double initValue) {
@@ -74,20 +79,35 @@ void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {
     for (UIElement* element : _uiElements) {
         // check if mouse click is within UI element
         if (mousePosition.y > element->yTop && mousePosition.y < element->height + element->yTop) {
+            switch (element->elementType) {
+              case uiElements::Trackbar: {
+                float activationPercent = (mousePosition.x - _trackbarSliderHorizontalPadding) / (_trackbarSliderSize.x - _trackbarSliderHorizontalPadding);
 
-            float activationPercent = (mousePosition.x - _trackbarSliderHorizontalPadding) / (_trackbarSliderSize.x - _trackbarSliderHorizontalPadding);
+                if (activationPercent > 1.0) { 
+                    activationPercent = 1.0;
+                } else if (activationPercent < 0.0) {
+                    activationPercent = 0.0;
+                }
 
-            if (activationPercent > 1.0) { 
-                activationPercent = 1.0;
-            } else if (activationPercent < 0.0) {
-                activationPercent = 0.0;
+                double elementValue = activationPercent * (element->maxVal - element->minVal) + element->minVal;
+
+                element->value = elementValue;
+
+                element->trackbarCallback(elementValue);
+                break;
+              }
+              case uiElements::Toggle: {
+                if (_toggleBoxRectangle.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+                  bool elementValue = std::get<bool>(element->value);
+                  element->value = !elementValue;
+                  element->toggleCallback(elementValue);
+                }
+
+                break;
+              }
+              default:
+                return;
             }
-
-            double elementValue = activationPercent * (element->maxVal - element->minVal) + element->minVal;
-
-            element->value = elementValue;
-
-            element->trackbarCallback(elementValue);
         }
     }
 }
@@ -102,6 +122,27 @@ void ConfigurationMenu::_drawToggle(std::string label, float yTop, float element
     _toggleBoxOutlineRectangle.setPosition(sf::Vector2f(_toggleBoxRectangleHorizontalPadding, yTop + (elementHeight / 2.0) - (_toggleBoxSize.y / 2.0)));
     float toggleBoxOutlineThickness = (_toggleOutlineSize.x - _toggleBoxSize.x) / 2.0;
     _toggleBoxOutlineRectangle.setPosition(sf::Vector2f(_toggleBoxRectangleHorizontalPadding + toggleBoxOutlineThickness, yTop + (elementHeight / 2.0) - (_toggleBoxSize.y / 2.0)));
+    _toggleBoxRectangle.setPosition(sf::Vector2f(_toggleBoxOutlineRectangle.getPosition().x + toggleBoxOutlineThickness, _toggleBoxOutlineRectangle.getPosition().y + toggleBoxOutlineThickness));
+
+    if (value) {
+      _toggleBoxRectangle.setFillColor(_toggleBoxSelectedColor);
+    } else {
+      _toggleBoxRectangle.setFillColor(_toggleBoxUnselectedColor);
+    }
+
+    _stream.str(std::string());
+
+    _stream << label << ": " << value;
+
+    _labelText.setString(_stream.str());
+    _labelText.setCharacterSize(_textSize);
+    _labelText.setPosition(_toggleBoxSize.x + 2.0 * _toggleBoxRectangleHorizontalPadding, yTop + (elementHeight - _labelText.getGlobalBounds().height) / 2.0);
+    _labelText.setFillColor(_textColor);
+    
+    _renderWindow.draw(_toggleBoxRectangle);
+    _renderWindow.draw(_toggleBoxOutlineRectangle);
+
+    _renderWindow.draw(_labelText);
 }
 
 void ConfigurationMenu::_drawTrackbar(std::string label, float yTop, float elementHeight, float trackbarPercentage, double value) {

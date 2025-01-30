@@ -1,5 +1,6 @@
 #include "configuration_menu.h"
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <functional>
 #include <iostream>
@@ -86,7 +87,6 @@ int ConfigurationMenu::_getBottomUIElementY() {
 }
 
 void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {
-    // std::cout << "mouse click in menu at y = " << mousePosition.y << std::endl;
     for (UIElement* element : _uiElements) {
         // check if mouse click is within UI element
         if (mousePosition.y > element->yTop && mousePosition.y < element->height + element->yTop) {
@@ -108,12 +108,15 @@ void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {
                 break;
               }
               case uiElements::Toggle: {
-                if (_toggleBoxRectangle.getGlobalBounds().contains(mousePosition.x, mousePosition.y)) {
+                // we need to define a rectangle that has the same position and size of the toggle box for this element so that we can verify that the mouse has been pressed on the toggle
+                sf::Vector2f toggleBoxPosition(_toggleBoxRectangleHorizontalPadding, element->yTop + (element->height / 2.0) - (_toggleBoxSize.y / 2.0));
+                sf::Rect toggleBoxBounds = sf::Rect(toggleBoxPosition, _toggleOutlineSize);
+                if (toggleBoxBounds.contains(mousePosition.x, mousePosition.y)  && !_mousePressed) {
                   bool elementValue = std::get<bool>(element->value);
-                  element->value = !elementValue;
+                  elementValue = !elementValue;
+                  element->value = elementValue;
                   element->toggleCallback(elementValue);
                 }
-
                 break;
               }
               default:
@@ -121,6 +124,11 @@ void ConfigurationMenu::evaluateMouseClick(sf::Vector2i mousePosition) {
             }
         }
     }
+    _mousePressed = true;
+}
+
+void ConfigurationMenu::mouseReleased() {
+  _mousePressed = false;
 }
 
 void ConfigurationMenu::drawUI() {
@@ -147,7 +155,7 @@ void ConfigurationMenu::_drawToggle(std::string label, float yTop, float element
 
     _labelText.setString(_stream.str());
     _labelText.setCharacterSize(_textSize);
-    _labelText.setPosition(_toggleBoxSize.x + 2.0 * _toggleBoxRectangleHorizontalPadding, yTop + (elementHeight - _labelText.getGlobalBounds().height) / 2.0);
+    _labelText.setPosition(_toggleOutlineSize.x + 2.0 * _toggleBoxRectangleHorizontalPadding, yTop + (elementHeight / 2.0) - (_labelText.getGlobalBounds().height / 2.0));
     _labelText.setFillColor(_textColor);
     
     _renderWindow.draw(_toggleBoxOutlineRectangle);

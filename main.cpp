@@ -5,12 +5,10 @@
 #include <cmath>
 #include <sstream>
 #include <random>
-#include <variant>
 #include <functional>
 
 #include "configuration_menu.h"
 #include "collisionModels.h"
-#include "uiElements.h"
 #include "particle.h"
 #include "particle_sim.h"
 
@@ -201,6 +199,8 @@ int main(){
         // if mouse pressed within bounds of menu window and menu window has OS focus
         if (Mouse::isButtonPressed(Mouse::Left) && mousePositionMenu.x < MENU_WIDTH && mousePositionMenu.x >= 0 && mousePositionMenu.y < MENU_HEIGHT && mousePositionMenu.y >= 0 && menuWindow.hasFocus()) {
             configurationMenu.evaluateMouseClick(mousePositionMenu);
+        } else {
+          configurationMenu.mouseReleased();
         }
 
 

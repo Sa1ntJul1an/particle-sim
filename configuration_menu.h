@@ -20,9 +20,12 @@ class ConfigurationMenu {
         void addTrackbar(std::function<void(double)>, std::string, double, double, double);
 
         void evaluateMouseClick(sf::Vector2i);
+        void mouseReleased();
         void drawUI();
 
     private:
+
+        bool _mousePressed;
 
         std::stringstream _stream;
 
@@ -49,8 +52,8 @@ class ConfigurationMenu {
         const sf::Color _toggleBoxSelectedColor = _trackbarButtonColor;
         const sf::Color _toggleBoxUnselectedColor = sf::Color::Black;
         const sf::Vector2f _toggleOutlineSize = sf::Vector2f(25, 25);
-        const sf::Vector2f _toggleBoxSize = sf::Vector2f(20, 20);
-        const float _toggleBoxRectangleHorizontalPadding = 20.0;
+        const sf::Vector2f _toggleBoxSize = sf::Vector2f(19, 19);
+        const float _toggleBoxRectangleHorizontalPadding = 10.0;
 
         // SFML objects
         sf::RectangleShape _uiBackgroundRectangle;

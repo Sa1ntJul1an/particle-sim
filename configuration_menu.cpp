@@ -38,10 +38,25 @@ ConfigurationMenu::ConfigurationMenu(sf::RenderWindow& renderWindow, sf::Font& f
     _toggleBoxRectangle.setSize(_toggleBoxSize);
 }
 
-void ConfigurationMenu::addUIElement(uiElements elementType, std::variant<std::function<void(double)>, std::function<void(bool)>> callback, std::string label, double minVal, double maxVal, double initValue) {
+void ConfigurationMenu::addToggle(std::function<void(bool)> callback, std::string label, bool initValue) {
     UIElement * element = new UIElement; 
 
-    element->elementType = elementType;
+    element->elementType = uiElements::Toggle;
+    element->label = label;
+    element->value = initValue;
+
+    element->yTop = _getBottomUIElementY() + _elementVerticalPadding;
+    element->height = _defaultElementHeight;
+
+    element->toggleCallback = callback;
+
+    _uiElements.push_back(element);
+}
+
+void ConfigurationMenu::addTrackbar(std::function<void(double)> callback, std::string label, double minVal, double maxVal, double initValue) {
+    UIElement * element = new UIElement; 
+
+    element->elementType = uiElements::Trackbar;
     element->minVal = minVal;
     element->maxVal = maxVal;
     element->label = label;
@@ -50,11 +65,7 @@ void ConfigurationMenu::addUIElement(uiElements elementType, std::variant<std::f
     element->yTop = _getBottomUIElementY() + _elementVerticalPadding;
     element->height = _defaultElementHeight;
 
-    if (std::holds_alternative<std::function<void(bool)>>(callback)) {
-      element->toggleCallback = std::get<std::function<void(bool)>>(callback);
-    } else if (std::holds_alternative<std::function<void(double)>>(callback)) {
-      element->trackbarCallback = std::get<std::function<void(double)>>(callback);
-    }
+    element->trackbarCallback = callback;
 
     _uiElements.push_back(element);
 }
@@ -124,23 +135,23 @@ void ConfigurationMenu::_drawToggle(std::string label, float yTop, float element
     _toggleBoxOutlineRectangle.setPosition(sf::Vector2f(_toggleBoxRectangleHorizontalPadding + toggleBoxOutlineThickness, yTop + (elementHeight / 2.0) - (_toggleBoxSize.y / 2.0)));
     _toggleBoxRectangle.setPosition(sf::Vector2f(_toggleBoxOutlineRectangle.getPosition().x + toggleBoxOutlineThickness, _toggleBoxOutlineRectangle.getPosition().y + toggleBoxOutlineThickness));
 
+    _stream.str(std::string());
+    
     if (value) {
       _toggleBoxRectangle.setFillColor(_toggleBoxSelectedColor);
+      _stream << label << ": " << "enabled";
     } else {
       _toggleBoxRectangle.setFillColor(_toggleBoxUnselectedColor);
+      _stream << label << ": " << "disabled";
     }
-
-    _stream.str(std::string());
-
-    _stream << label << ": " << value;
 
     _labelText.setString(_stream.str());
     _labelText.setCharacterSize(_textSize);
     _labelText.setPosition(_toggleBoxSize.x + 2.0 * _toggleBoxRectangleHorizontalPadding, yTop + (elementHeight - _labelText.getGlobalBounds().height) / 2.0);
     _labelText.setFillColor(_textColor);
     
-    _renderWindow.draw(_toggleBoxRectangle);
     _renderWindow.draw(_toggleBoxOutlineRectangle);
+    _renderWindow.draw(_toggleBoxRectangle);
 
     _renderWindow.draw(_labelText);
 }

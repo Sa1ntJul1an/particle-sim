@@ -16,7 +16,8 @@ class ConfigurationMenu {
 
         ~ConfigurationMenu();
 
-        void addUIElement(uiElements, std::variant<std::function<void(double)>, std::function<void(bool)>>, std::string, double, double, double);
+        void addToggle(std::function<void(bool)>, std::string, bool);
+        void addTrackbar(std::function<void(double)>, std::string, double, double, double);
 
         void evaluateMouseClick(sf::Vector2i);
         void drawUI();

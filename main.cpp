@@ -56,7 +56,7 @@ Vector2f convertCoords(Vector2f coords){
 }
 
 
-void testTrackbarCallback(double value) {
+void testToggleCallback(bool value) {
   cout << value << "\n";
 }
 
@@ -128,19 +128,17 @@ int main(){
     ParticleSim particleSim(G, viscosityOfMedium, collisionModel, particles, WIDTH, HEIGHT, collideWithWalls, isFrictionEnabled);
     
     // define callbacks that configuration menu will call to alter particle sim parameters
-    // callback type alias
-    using callbackVariant = variant<function<void(double)>, function<void(bool)>>;
     // set gravitational constant callback
     function<void(double)> setG = particleSim.setG;
-    callbackVariant setGCallback = setG;
     // set viscosity callback
     function<void(double)> setViscosity = particleSim.setViscosity;
-    callbackVariant setViscosityCallback = setViscosity;
 
     ConfigurationMenu configurationMenu(menuWindow, font); 
-    configurationMenu.addUIElement(uiElements::Trackbar, setGCallback, "Gravitational\nConstant", 0.0, 0.0000000005, G);
-    configurationMenu.addUIElement(uiElements::Trackbar, setViscosityCallback, "Viscosity", 10000000000, 1000000000000, viscosityOfMedium);
+    configurationMenu.addTrackbar(setG, "Gravitational\nConstant", 0.0, 0.0000000005, G);
+    configurationMenu.addTrackbar(setViscosity, "Viscosity", 10000000000, 1000000000000, viscosityOfMedium);
 
+    configurationMenu.addToggle(testToggleCallback, "Test toggle", true);
+    
     // spawn a particle with a fixed position at first, until mouse released then unfix position 
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
 

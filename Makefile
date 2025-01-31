@@ -5,7 +5,8 @@ compile:
 	g++ -c particle.cpp
 	g++ -c particle_sim.cpp
 	g++ -c configuration_menu.cpp
-	
+	g++ -c render_config.cpp
+
 # add -mwindows at end of link to hide console
 link:
-	g++ main.o particle.o particle_sim.o configuration_menu.o -o main -lsfml-graphics -lsfml-window -lsfml-system	
+	g++ main.o particle.o particle_sim.o configuration_menu.o render_config.o -o main -lsfml-graphics -lsfml-window -lsfml-system	

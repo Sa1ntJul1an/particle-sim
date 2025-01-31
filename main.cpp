@@ -11,6 +11,7 @@
 #include "collisionModels.h"
 #include "particle.h"
 #include "particle_sim.h"
+#include "render_config.h"
 
 using namespace sf;
 using namespace std;
@@ -104,6 +105,8 @@ int main(){
     menuWindow.setFramerateLimit(60);
     // =======================================================================
 
+    RenderConfig renderConfig;
+
     bool sim_running = true;
     bool space_pressed = false;
     bool mouse_held = false;
@@ -131,12 +134,18 @@ int main(){
     // set viscosity callback
     function<void(double)> setViscosity = particleSim.setViscosity;
 
-    ConfigurationMenu configurationMenu(menuWindow, font); 
+    function<void(bool)> setShowValues = renderConfig.setShowValues;
+    function<void(bool)> setShowVectors = renderConfig.setShowVectors;
+    function<void(bool)> setShowTraces = renderConfig.setShowTraces;
+
+    ConfigurationMenu configurationMenu(menuWindow, font);
     configurationMenu.addTrackbar(setG, "Gravitational\nConstant", 0.0, 0.0000000005, G);
     configurationMenu.addTrackbar(setViscosity, "Viscosity", 10000000000, 1000000000000, viscosityOfMedium);
 
-    configurationMenu.addToggle(testToggleCallback, "Test toggle", true);
-    
+    configurationMenu.addToggle(setShowValues, "Show Values", renderConfig.getShowValues());
+    configurationMenu.addToggle(setShowVectors, "Show Vectors", renderConfig.getShowVectors());
+    configurationMenu.addToggle(setShowTraces, "Show Particle Traces", renderConfig.getShowTraces());
+
     // spawn a particle with a fixed position at first, until mouse released then unfix position 
     Particle particle = Particle(particle_struct.radius, particle_struct.mass, 0, particle_struct.rgb, convertCoords(mousePosition), particle_struct.velocity, particle_struct.acceleration);
 
@@ -286,7 +295,7 @@ int main(){
 
             particleWindow.draw(particle_shape);
 
-            if (displayValues){
+            if (renderConfig.getShowValues()){
                 int char_size = 15;
                 int y_offset_multiplier = 2;
 
@@ -335,7 +344,7 @@ int main(){
                 particleWindow.draw(acceleration_text);
             }
 
-            if (drawVelocityVectors){
+            if (renderConfig.getShowVectors()){
                 
                 Vector2f velocity_vector;
 
@@ -354,7 +363,7 @@ int main(){
 
             }
             
-            if (drawAccelerationVectors){
+            if (renderConfig.getShowVectors()){
                 
                 Vector2f acceleration_vector;
 
@@ -372,7 +381,7 @@ int main(){
                 particleWindow.draw(line, 2, sf::Lines);
             }
 
-            if (drawTraces) {
+            if (renderConfig.getShowTraces()) {
                 TracePoint tracePoint; 
                 tracePoint.spawnIteration = renderIteration;
                 tracePoint.color = particle->getColor();

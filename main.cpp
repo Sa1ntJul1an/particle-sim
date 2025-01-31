@@ -101,7 +101,7 @@ int main(){
     // =======================================================================
     RenderWindow particleWindow(VideoMode(WIDTH, HEIGHT), "Particle Sim");
     particleWindow.setFramerateLimit(60);
-    RenderWindow menuWindow(VideoMode(MENU_WIDTH, MENU_HEIGHT), "Menu");
+    RenderWindow menuWindow(VideoMode(MENU_WIDTH, MENU_HEIGHT), "Settings");
     menuWindow.setFramerateLimit(60);
     // =======================================================================
 
@@ -381,32 +381,32 @@ int main(){
                 particleWindow.draw(line, 2, sf::Lines);
             }
 
-            if (renderConfig.getShowTraces()) {
-                TracePoint tracePoint; 
-                tracePoint.spawnIteration = renderIteration;
-                tracePoint.color = particle->getColor();
-                tracePoint.position = Vector2f(convertCoords(particle->getPosition())[0], convertCoords(particle->getPosition())[1]);
-                traces.push_back(tracePoint);
-                
-                auto it = traces.begin();
-                while (it != traces.end()) {
-                    TracePoint& point = *it;
+            TracePoint tracePoint; 
+            tracePoint.spawnIteration = renderIteration;
+            tracePoint.color = particle->getColor();
+            tracePoint.position = Vector2f(convertCoords(particle->getPosition())[0], convertCoords(particle->getPosition())[1]);
+            traces.push_back(tracePoint);
+            
+            auto it = traces.begin();
+            while (it != traces.end()) {
+                TracePoint& point = *it;
 
-                    tracePointCircle.setRadius(1);
-                    int alpha = (1.0 - (float(renderIteration - point.spawnIteration) / float(traceLifeTime))) * 255.0;
-                    if (alpha <= 1) {
-                        alpha = 0;
-                    }
-                    tracePointCircle.setFillColor(Color(point.color[0], point.color[1], point.color[2], alpha));
-                    tracePointCircle.setPosition(point.position);
+                tracePointCircle.setRadius(1);
+                int alpha = (1.0 - (float(renderIteration - point.spawnIteration) / float(traceLifeTime))) * 255.0;
+                if (alpha <= 1) {
+                    alpha = 0;
+                }
+                tracePointCircle.setFillColor(Color(point.color[0], point.color[1], point.color[2], alpha));
+                tracePointCircle.setPosition(point.position);
 
-                    particleWindow.draw(tracePointCircle);
+                if (renderConfig.getShowTraces()) {
+                  particleWindow.draw(tracePointCircle);
+                }
 
-                    if (renderIteration - point.spawnIteration >= traceLifeTime) {
-                        it = traces.erase(it);
-                    } else {
-                        ++it;
-                    }
+                if (renderIteration - point.spawnIteration >= traceLifeTime) {
+                    it = traces.erase(it);
+                } else {
+                    ++it;
                 }
             }
         }
